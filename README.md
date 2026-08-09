@@ -36,11 +36,11 @@ A production-grade, fault-tolerant, and benchmarked **Model Context Protocol (MC
 | **Unit & Integration Test Suite** | 0 tests | **53 passed tests** | **100% test coverage** |
 
 <p align="center">
-  <img src="docs/images/impact_metrics.png" alt="Measured Engineering Impact Dashboard" width="100%">
+  <img src="docs/images/impact_metrics.png" alt="Measured Engineering Impact Dashboard" width="70%">
 </p>
 
 <p align="center">
-  <img src="docs/images/benchmark_results.png" alt="100-Query Dual Benchmark Dashboard" width="100%">
+  <img src="docs/images/benchmark_results.png" alt="100-Query Dual Benchmark Dashboard" width="70%">
 </p>
 
 ---
