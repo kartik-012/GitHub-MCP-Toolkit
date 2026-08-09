@@ -35,6 +35,14 @@ A production-grade, fault-tolerant, and benchmarked **Model Context Protocol (MC
 | **C-Extension Memory Footprint** | ~300MB (PyTorch/Transformers) | **0MB (Pure-Python TF-IDF)** | **100% footprint reduction** |
 | **Unit & Integration Test Suite** | 0 tests | **53 passed tests** | **100% test coverage** |
 
+<p align="center">
+  <img src="docs/images/impact_metrics.png" alt="Measured Engineering Impact Dashboard" width="100%">
+</p>
+
+<p align="center">
+  <img src="docs/images/benchmark_results.png" alt="100-Query Dual Benchmark Dashboard" width="100%">
+</p>
+
 ---
 
 ## 🏛️ The 4 Engineering Pillars
