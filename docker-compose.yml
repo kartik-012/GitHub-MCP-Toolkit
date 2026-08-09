@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  github-mcp-server:
+    build: .
+    container_name: github-mcp-toolkit
+    ports:
+      - "8000:8000"
+    environment:
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - MCP_TRANSPORT=sse
+      - OLLAMA_HOST=http://host.docker.internal:11434
+      - OLLAMA_MODEL=llama3.2:1b
+    volumes:
+      - ./tool_calls.log:/app/tool_calls.log
+    restart: unless-stopped

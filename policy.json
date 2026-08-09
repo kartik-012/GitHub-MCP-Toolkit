@@ -1,0 +1,6 @@
+{
+  "max_bulk_limit": 15,
+  "min_rate_limit_remaining": 20,
+  "restricted_labels": ["security-critical", "production-outage", "do-not-modify"],
+  "allow_writes": true
+}

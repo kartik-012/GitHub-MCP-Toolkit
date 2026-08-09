@@ -1,0 +1,70 @@
+[
+  {"id": 1, "category": "direct", "query": "List all open issues in test-repo-1", "expected_tool": "get_open_issues"},
+  {"id": 2, "category": "direct", "query": "What open issues exist across all my repositories?", "expected_tool": "get_open_issues"},
+  {"id": 3, "category": "direct", "query": "Show me the open issues in backend-api", "expected_tool": "get_open_issues"},
+  {"id": 4, "category": "direct", "query": "How many open issues do I have currently?", "expected_tool": "get_open_issues"},
+  {"id": 5, "category": "direct", "query": "Get open issues for test-repo-2", "expected_tool": "get_open_issues"},
+  
+  {"id": 6, "category": "direct", "query": "Search for issues mentioning 'login bug' in test-repo-1", "expected_tool": "search_issues"},
+  {"id": 7, "category": "direct", "query": "Find open issues containing keyword 'rate limit'", "expected_tool": "search_issues"},
+  {"id": 8, "category": "direct", "query": "Search open issues for 'database connection error'", "expected_tool": "search_issues"},
+  {"id": 9, "category": "direct", "query": "Find issues related to 'authentication'", "expected_tool": "search_issues"},
+  {"id": 10, "category": "direct", "query": "Search for 'memory leak' in frontend-app repo", "expected_tool": "search_issues"},
+
+  {"id": 11, "category": "direct", "query": "Create an issue in test-repo-1 titled 'Fix CORS header error'", "expected_tool": "create_issue"},
+  {"id": 12, "category": "direct", "query": "Open a new issue in backend-api called 'Upgrade PyGithub dependency'", "expected_tool": "create_issue"},
+  {"id": 13, "category": "direct", "query": "Create issue 'Add pagination to search endpoint' in test-repo-2", "expected_tool": "create_issue"},
+
+  {"id": 14, "category": "direct", "query": "Add the label 'bug' to issue #4 in test-repo-1", "expected_tool": "add_label"},
+  {"id": 15, "category": "direct", "query": "Label issue #12 in frontend-app as 'urgent'", "expected_tool": "add_label"},
+
+  {"id": 16, "category": "rephrased", "query": "Close issue #3 in test-repo-1 with comment 'Resolved in PR #10'", "expected_tool": "close_issue"},
+  {"id": 17, "category": "rephrased", "query": "Mark issue #7 in backend-api as closed", "expected_tool": "close_issue"},
+
+  {"id": 18, "category": "direct", "query": "Label all issues inactive for 30 days in test-repo-1 as stale", "expected_tool": "bulk_label_stale_issues"},
+  {"id": 19, "category": "direct", "query": "Find and label stale issues older than 45 days in backend-api", "expected_tool": "bulk_label_stale_issues"},
+  {"id": 20, "category": "direct", "query": "Bulk label inactive tickets in test-repo-2 as stale", "expected_tool": "bulk_label_stale_issues"},
+
+  {"id": 21, "category": "direct", "query": "What priority should issue #1 in test-repo-1 be?", "expected_tool": "triage_issue"},
+  {"id": 22, "category": "direct", "query": "Triage issue #5 in backend-api and suggest category", "expected_tool": "triage_issue"},
+  {"id": 23, "category": "direct", "query": "Analyze issue #2 in frontend-app for priority and labels", "expected_tool": "triage_issue"},
+
+  {"id": 24, "category": "direct", "query": "Check my current GitHub API rate limit quota remaining", "expected_tool": "get_rate_limit_status"},
+  {"id": 25, "category": "direct", "query": "How many API requests do I have left before reset?", "expected_tool": "get_rate_limit_status"},
+
+  {"id": 26, "category": "rephrased", "query": "Can you check if there are any tickets pending in my repository?", "expected_tool": "get_open_issues"},
+  {"id": 27, "category": "rephrased", "query": "Give me a list of open tasks across all GitHub projects", "expected_tool": "get_open_issues"},
+  {"id": 28, "category": "rephrased", "query": "Are there any open items in test-repo-1 right now?", "expected_tool": "get_open_issues"},
+
+  {"id": 29, "category": "rephrased", "query": "Look up tickets containing the term 'timeout'", "expected_tool": "search_issues"},
+  {"id": 30, "category": "rephrased", "query": "Do we have any issues discussing 'docker setup'?", "expected_tool": "search_issues"},
+  {"id": 31, "category": "rephrased", "query": "Filter open tickets for 'slow query'", "expected_tool": "search_issues"},
+
+  {"id": 32, "category": "rephrased", "query": "File a new ticket in test-repo-1: 'Update README installation steps'", "expected_tool": "create_issue"},
+  {"id": 33, "category": "rephrased", "query": "Submit an issue titled 'Fix typo in login page' to frontend-app", "expected_tool": "create_issue"},
+
+  {"id": 34, "category": "rephrased", "query": "Attach 'help wanted' label to issue #9 in backend-api", "expected_tool": "add_label"},
+  {"id": 35, "category": "rephrased", "query": "Tag ticket #15 with 'documentation'", "expected_tool": "add_label"},
+
+  {"id": 36, "category": "ambiguous", "query": "Find login problems in test-repo-1", "expected_tool": "search_issues"},
+  {"id": 37, "category": "ambiguous", "query": "Show issues related to security in backend-api", "expected_tool": "search_issues"},
+  {"id": 38, "category": "ambiguous", "query": "What's going on with issue #3 in test-repo-1?", "expected_tool": "triage_issue"},
+  {"id": 39, "category": "ambiguous", "query": "Review issue #10 and tell me what category it belongs to", "expected_tool": "triage_issue"},
+  {"id": 40, "category": "ambiguous", "query": "Clean up inactive issues in test-repo-1 that haven't been touched", "expected_tool": "bulk_label_stale_issues"},
+
+  {"id": 41, "category": "multi_step", "query": "Find stale issues in test-repo-1 and bulk label them as stale", "expected_tool": "bulk_label_stale_issues"},
+  {"id": 42, "category": "multi_step", "query": "Create an issue in backend-api titled 'Setup CI pipeline' and ask me to confirm", "expected_tool": "create_issue"},
+  {"id": 43, "category": "multi_step", "query": "Search for issue #2 and triage its priority level", "expected_tool": "triage_issue"},
+  {"id": 44, "category": "multi_step", "query": "Close issue #8 in test-repo-1 and add a resolution comment", "expected_tool": "close_issue"},
+  {"id": 45, "category": "multi_step", "query": "Get remaining GitHub rate limit before running search queries", "expected_tool": "get_rate_limit_status"},
+
+  {"id": 46, "category": "no_match", "query": "What is the weather forecast in San Francisco today?", "expected_tool": null},
+  {"id": 47, "category": "no_match", "query": "Write a Python script to calculate fibonacci numbers", "expected_tool": null},
+  {"id": 48, "category": "no_match", "query": "Who won the World Cup in 2022?", "expected_tool": null},
+  {"id": 49, "category": "no_match", "query": "Tell me a story about a dragon", "expected_tool": null},
+  {"id": 50, "category": "no_match", "query": "What is 25 multiplied by 48?", "expected_tool": null},
+
+  {"id": 51, "category": "direct", "query": "List all my GitHub repositories", "expected_tool": "list_repositories"},
+  {"id": 52, "category": "rephrased", "query": "Show me all my repos on GitHub", "expected_tool": "list_repositories"},
+  {"id": 53, "category": "rephrased", "query": "What repositories do I have access to?", "expected_tool": "list_repositories"}
+]
