@@ -166,7 +166,7 @@ def classify_tool_intent(query: str) -> Optional[str]:
     q_full = query.lower()  # used only for broad fallback
 
     # ── Out-of-domain rejection ───────────────────────────────────────────
-    out_of_domain = ["weather", "fibonacci", "world cup", "story about", "multiplied by"]
+    out_of_domain = ["weather", "fibonacci", "world cup", "story about", "multiplied by", "cookies", "capital of", "translate"]
     if any(term in q_full for term in out_of_domain):
         return None
 
@@ -183,7 +183,7 @@ def classify_tool_intent(query: str) -> Optional[str]:
         return "get_rate_limit_status"
 
     if any(k in q for k in ["trace", "execution history", "phase timing",
-                              "tool call timings", "span"]):
+                              "tool call timings"]) or _re.search(r"\bspans?\b", q):
         return "get_trace_history"
 
     if any(k in q for k in ["transaction history", "write actions", "journal",
@@ -195,7 +195,7 @@ def classify_tool_intent(query: str) -> Optional[str]:
 
     if any(k in q for k in ["bulk label", "inactive for", "stale issues",
                               "clean up inactive", "sitting idle for", "idle for",
-                              "outdated"]):
+                              "outdated", "inactive tickets"]):
         return "bulk_label_stale_issues"
     # 'flag' alone only maps to bulk if combined with issue quantity context
     if "flag" in q and any(k in q for k in ["all", "inactive", "stale", "tickets"]):
@@ -211,7 +211,10 @@ def classify_tool_intent(query: str) -> Optional[str]:
                               "file a bug report", "file a bug"]):
         return "create_issue"
 
-    if any(k in q for k in ["close issue", "mark issue", "close_issue("]):
+    if (
+        any(k in q for k in ["close issue", "mark issue", "close_issue(", "as closed"])
+        or _re.search(r"mark (ticket|issue) #?\d+ as closed", q)
+    ):
         return "close_issue"
 
     if (
@@ -235,13 +238,14 @@ def classify_tool_intent(query: str) -> Optional[str]:
 
     if any(k in q for k in ["list repos", "my repos", "show repos", "repositories",
                               "all my projects", "what repos", "github repos",
-                              "list all repositories"]) and not any(k in q for k in ["open", "issue", "ticket", "bug"]):
+                              "list all repositories", "projects in my", "projects are in"]) and not any(k in q for k in ["open", "issue", "ticket", "bug"]):
         return "list_repositories"
 
     if any(k in q for k in ["list", "open issues", "what's open", "show open",
                               "all issues", "open tickets", "open tasks",
                               "pending in my repository", "open items",
-                              "everything open", "find open", "show me everything open"]):
+                              "everything open", "find open", "show me everything open",
+                              "open in"]):
         return "get_open_issues"
 
     return None

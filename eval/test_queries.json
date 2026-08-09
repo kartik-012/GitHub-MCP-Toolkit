@@ -66,5 +66,45 @@
 
   {"id": 51, "category": "direct", "query": "List all my GitHub repositories", "expected_tool": "list_repositories"},
   {"id": 52, "category": "rephrased", "query": "Show me all my repos on GitHub", "expected_tool": "list_repositories"},
-  {"id": 53, "category": "rephrased", "query": "What repositories do I have access to?", "expected_tool": "list_repositories"}
+  {"id": 53, "category": "rephrased", "query": "What repositories do I have access to?", "expected_tool": "list_repositories"},
+  {"id": 54, "category": "rephrased", "query": "Which projects are in my GitHub account?", "expected_tool": "list_repositories"},
+
+  {"id": 55, "category": "direct", "query": "Find issues semantically related to database connection pooling", "expected_tool": "semantic_search_issues"},
+  {"id": 56, "category": "rephrased", "query": "Look up tickets semantically similar to authentication session expiry", "expected_tool": "semantic_search_issues"},
+
+  {"id": 57, "category": "direct", "query": "Undo my last action", "expected_tool": "undo_last_action"},
+  {"id": 58, "category": "rephrased", "query": "Revert the last change made by the server", "expected_tool": "undo_last_action"},
+
+  {"id": 59, "category": "direct", "query": "Get recent write transaction history", "expected_tool": "get_transaction_history"},
+  {"id": 60, "category": "rephrased", "query": "Show me the saga transaction journal records", "expected_tool": "get_transaction_history"},
+
+  {"id": 61, "category": "direct", "query": "Show tool execution trace history", "expected_tool": "get_trace_history"},
+  {"id": 62, "category": "rephrased", "query": "What were the phase timings for the recent tool execution spans?", "expected_tool": "get_trace_history"},
+
+  {"id": 63, "category": "direct", "query": "List open issues in backend-service", "expected_tool": "get_open_issues"},
+  {"id": 64, "category": "rephrased", "query": "What tasks are currently open in mobile-app?", "expected_tool": "get_open_issues"},
+
+  {"id": 65, "category": "direct", "query": "Search for issues containing 'memory leak' in title or body", "expected_tool": "search_issues"},
+  {"id": 66, "category": "rephrased", "query": "Find tickets discussing 'CORS error'", "expected_tool": "search_issues"},
+
+  {"id": 67, "category": "direct", "query": "Create issue 'Update API documentation' in repo backend-service", "expected_tool": "create_issue"},
+  {"id": 68, "category": "rephrased", "query": "File a bug ticket titled 'Refactor auth middleware' in core-api", "expected_tool": "create_issue"},
+
+  {"id": 69, "category": "direct", "query": "Add label 'priority:high' to issue #12 in core-api", "expected_tool": "add_label"},
+  {"id": 70, "category": "rephrased", "query": "Attach 'needs-review' tag to issue #8 in frontend-v2", "expected_tool": "add_label"},
+
+  {"id": 71, "category": "direct", "query": "Close issue #15 in core-api with comment 'Fixed in v2.1'", "expected_tool": "close_issue"},
+  {"id": 72, "category": "rephrased", "query": "Mark ticket #22 in UI-kit as closed", "expected_tool": "close_issue"},
+
+  {"id": 73, "category": "direct", "query": "Bulk label issues untouched for 60 days as stale in core-api", "expected_tool": "bulk_label_stale_issues"},
+  {"id": 74, "category": "rephrased", "query": "Find inactive tickets older than 90 days in frontend-v2 and apply stale label", "expected_tool": "bulk_label_stale_issues"},
+
+  {"id": 75, "category": "direct", "query": "Triage issue #3 in core-api to determine category and priority", "expected_tool": "triage_issue"},
+  {"id": 76, "category": "rephrased", "query": "Analyze issue #14 in UI-kit and suggest labels", "expected_tool": "triage_issue"},
+
+  {"id": 77, "category": "direct", "query": "Check API rate limit remaining count", "expected_tool": "get_rate_limit_status"},
+
+  {"id": 78, "category": "no_match", "query": "How do I make chocolate chip cookies?", "expected_tool": null},
+  {"id": 79, "category": "no_match", "query": "What is the capital of France?", "expected_tool": null},
+  {"id": 80, "category": "no_match", "query": "Translate hello to Spanish", "expected_tool": null}
 ]

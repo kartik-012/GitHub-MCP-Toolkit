@@ -75,7 +75,7 @@ Two evaluation passes are run against the intent classifier:
 
 | Dataset | Queries | Accuracy | Notes |
 |---|---|---|---|
-| **Standard** (`test_queries.json`) | 50 | **100.0%** | Direct, rephrased, ambiguous, multi-step, out-of-domain |
+| **Standard** (`test_queries.json`) | 80 | **100.0%** | Direct, rephrased, ambiguous, multi-step, out-of-domain |
 | **Adversarial** (`adversarial_queries.json`) | 20 | **100.0%** | Prompt injection, semantic confusion, multi-intent attacks |
 
 The adversarial harness tests LLM-specific failure modes that standard evals miss — quoted-payload injection, synonym routing confusion, and multi-intent queries with injected secondary commands.
