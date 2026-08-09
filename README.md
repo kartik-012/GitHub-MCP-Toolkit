@@ -2,6 +2,7 @@
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
 [![MCP Spec Version](https://img.shields.io/badge/MCP-1.0.0-green.svg)](https://modelcontextprotocol.io/)
+[![ADRs: 8 Decisions](https://img.shields.io/badge/adrs-8%20decisions-purple.svg)](DECISIONS.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Tests: 53 passed](https://img.shields.io/badge/tests-53%20passed-brightgreen.svg)]()
 [![Standard Eval: 100%](https://img.shields.io/badge/standard%20eval-100%25-brightgreen.svg)]()
@@ -10,6 +11,17 @@
 [![CI/CD: GitHub Actions](https://img.shields.io/badge/ci%2Fcd-github%20actions-blue.svg)](.github/workflows/docker-ci.yml)
 
 A production-grade, fault-tolerant, and benchmarked **Model Context Protocol (MCP) server** written in Python. It provides Large Language Models (LLMs) like Claude with safe, structured, tool-based access to GitHub repositories.
+
+---
+
+## 📌 Quick Navigation & Key Documents
+
+| 📖 Document | Purpose & Contents |
+|---|---|
+| 🎯 [**`DECISIONS.md`**](DECISIONS.md) | **Architecture Decision Records (8 ADRs)** & **Interview Answer Cards** |
+| 🛡️ [**`SECURITY.md`**](SECURITY.md) | **5-Layer Security Model & Prompt Injection Sandbox Spec** |
+| 📜 [**`CHANGELOG.md`**](CHANGELOG.md) | **Version history, feature additions, and security fixes** |
+| 🐳 [**`Dockerfile`**](Dockerfile) / [**`docker-compose.yml`**](docker-compose.yml) | **Containerized SSE transport deployment configuration** |
 
 ---
 
