@@ -88,7 +88,6 @@ A production-grade, fault-tolerant, and benchmarked **Model Context Protocol (MC
 > - **Issue:** In intent classification, substring matching `"span"` accidentally matched non-tracing queries like `"Translate hello to Spanish"`, causing incorrect tool routing.
 > - **Fix:** Upgraded the eval harness classifier in `eval/run_eval.py` to enforce strict regex word boundaries `\bspans?\b` and expanded out-of-domain rejection lists, raising accuracy from 96.2% to 100.0%.
 
----
 
 ### 4. 🔧 Measured Engineering Impact
 
@@ -100,7 +99,7 @@ Adversarial Pass:  [████████████████████
 Unit Test Pass:    [████████████████████] 53/53 Passed
 ```
 
----
+
 
 ## 🏗️ System Architecture
 
@@ -143,7 +142,7 @@ flowchart TD
     CoreTools --> GHC
 ```
 
----
+
 
 ## 🛠️ Tool Reference (13 Registered Tools)
 
@@ -170,7 +169,7 @@ flowchart TD
 | 12 | `get_transaction_history(limit)` | `TransactionJournal` | Lists recent write transactions with status (`committed` / `reverted`). |
 | 13 | `get_trace_history(limit)` | `Tracer` | Exposes execution spans and per-phase timing (`policy_check`, `vector_dedup`, `github_api`). |
 
----
+
 
 ## 🔒 Security & Defense-in-Depth (5 Layers)
 
@@ -194,7 +193,6 @@ flowchart TD
 > **5. ABAC Policy Engine (`policy_engine.py` + `policy.json`)**
 > Evaluates declarative security rules (global write freeze, rate-limit buffer thresholds, restricted label lists, bulk action caps) before any API call is made.
 
----
 
 ## 📂 Project Structure
 
@@ -239,7 +237,7 @@ github-mcp-toolkit/
     └── test_advanced_features.py # 45 unit tests (Vector, Saga, Policy, CircuitBreaker, Tracer, Schemas)
 ```
 
----
+
 
 ## ⚡ Quick Start
 
