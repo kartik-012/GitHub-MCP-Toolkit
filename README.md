@@ -273,7 +273,7 @@ Add to `%APPDATA%\Claude\claude_desktop_config.json`:
 }
 ```
 
----
+
 
 ### 2. Docker Setup (Containerized SSE Server)
 
@@ -285,7 +285,7 @@ docker compose up -d
 docker compose logs -f
 ```
 
----
+
 
 ## 🧪 Testing & Evaluation Benchmark
 
@@ -309,7 +309,7 @@ python eval/run_eval.py
     Correct Tool Selection : 20/20 (100.0%) [PASS]
 ```
 
----
+
 
 ## 📜 License
 
