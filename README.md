@@ -39,7 +39,7 @@ A production-grade, fault-tolerant, and benchmarked **Model Context Protocol (MC
   <img src="docs/images/impact_metrics.png" alt="Measured Engineering Impact Dashboard" width="40%"> <img src="docs/images/benchmark_results.png" alt="100-Query Dual Benchmark Dashboard" width="40%">
 </p>
 
----
+
 
 ## 🏛️ The 4 Engineering Pillars
 
