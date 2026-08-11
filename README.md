@@ -58,7 +58,7 @@ A production-grade, fault-tolerant, and benchmarked **Model Context Protocol (MC
 - **Prompt Injection Untrusted Data Sandbox (`triage_issue.py`)**: Issues fetched from GitHub are untrusted third-party inputs. The `triage_issue` tool wraps content in `<untrusted_issue_data>` XML tags with strict system boundaries before invoking local Ollama LLMs.
 - **Pure-Python TF-IDF Vector Engine (`vector_engine.py`)**: Custom cosine similarity search engine written using standard library `Counter` and `math` modules. Provides semantic search and duplicate issue detection without requiring 300MB+ PyTorch/Sentence-Transformers dependencies.
 
----
+
 
 ### 2. ⚖️ Architecture Trade-Offs
 
@@ -69,7 +69,7 @@ A production-grade, fault-tolerant, and benchmarked **Model Context Protocol (MC
 | **Saga Journal** | Append-Only JSON Log | Lightweight, file-backed audit log with single-step undo | Multi-agent concurrent write lock coordination |
 | **Triage LLM** | Local `llama3.2:1b` (Ollama) | $0 operational cost, fully offline execution | Lower first-pass JSON schema adherence than GPT-4o (handled via fallback parser) |
 
----
+
 
 ### 3. ⚠️ Failures & Post-Mortems (Real Issues Found & Fixed)
 
