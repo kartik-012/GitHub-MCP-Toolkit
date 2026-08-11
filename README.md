@@ -23,7 +23,7 @@ A production-grade, fault-tolerant, and benchmarked **Model Context Protocol (MC
 | 📜 [**`CHANGELOG.md`**](CHANGELOG.md) | **Version history, feature additions, and security fixes** |
 | 🐳 [**`Dockerfile`**](Dockerfile) / [**`docker-compose.yml`**](docker-compose.yml) | **Containerized SSE transport deployment configuration** |
 
----
+
 
 ## 📊 Impact & Performance Benchmark Metrics
 
