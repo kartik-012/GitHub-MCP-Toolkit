@@ -59,7 +59,6 @@ A production-grade, fault-tolerant, and benchmarked **Model Context Protocol (MC
 - **Pure-Python TF-IDF Vector Engine (`vector_engine.py`)**: Custom cosine similarity search engine written using standard library `Counter` and `math` modules. Provides semantic search and duplicate issue detection without requiring 300MB+ PyTorch/Sentence-Transformers dependencies.
 
 
-
 ### 2. ⚖️ Architecture Trade-Offs
 
 | Component | Choice Made | What We Gained | What We Sacrificed |
