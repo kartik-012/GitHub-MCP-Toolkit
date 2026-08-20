@@ -12,7 +12,7 @@
 
 A production-grade, fault-tolerant, and benchmarked **Model Context Protocol (MCP) server** written in Python. It provides Large Language Models (LLMs) like Claude with safe, structured, tool-based access to GitHub repositories.
 
-## 📌 Quick Navigation & Key Documents
+## 📌 Quick Navigation & Key Documents 
 
 | 📖 Document | Purpose & Contents |
 |---|---|
