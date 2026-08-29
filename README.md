@@ -38,7 +38,6 @@ A production-grade, fault-tolerant, and benchmarked **Model Context Protocol (MC
 </p>
 
 
-
 ## 🏛️ The 4 Engineering Pillars
 
 ```
