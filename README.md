@@ -22,7 +22,6 @@ A production-grade, fault-tolerant, and benchmarked **Model Context Protocol (MC
 | 🐳 [**`Dockerfile`**](Dockerfile) / [**`docker-compose.yml`**](docker-compose.yml) | **Containerized SSE transport deployment configuration** |
 
 
-
 ## 📊 Impact & Performance Benchmark Metrics
 
 | Metric | Unoptimized Baseline | Our Optimized System | Improvement |
