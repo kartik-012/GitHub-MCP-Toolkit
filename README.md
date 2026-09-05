@@ -1,4 +1,4 @@
-# GitHub MCP Toolkit (`github-mcp-toolkit`) 
+# GitHub MCP Toolkit (`github-mcp-toolkit`)  
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
 [![MCP Spec Version](https://img.shields.io/badge/MCP-1.0.0-green.svg)](https://modelcontextprotocol.io/)
