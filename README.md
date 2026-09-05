@@ -1,5 +1,5 @@
 # GitHub MCP Toolkit (`github-mcp-toolkit`)  
-
+ 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
 [![MCP Spec Version](https://img.shields.io/badge/MCP-1.0.0-green.svg)](https://modelcontextprotocol.io/)
 [![ADRs: 8 Decisions](https://img.shields.io/badge/adrs-8%20decisions-purple.svg)](DECISIONS.md)
