@@ -1,6 +1,6 @@
 .PHONY: help install test eval run docker-build docker-up clean
       
-help: 
+help:  
 	@echo "GitHub MCP Toolkit — Available Commands:"
 	@echo "  make install      Install Python dependencies"
 	@echo "  make test         Run 53 PyTest unit & integration tests"
