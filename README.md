@@ -2,7 +2,7 @@
  
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
 [![MCP Spec Version](https://img.shields.io/badge/MCP-1.0.0-green.svg)](https://modelcontextprotocol.io/)
-[![ADRs: 8 Decisions](https://img.shields.io/badge/adrs-8%20decisions-purple.svg)](DECISIONS.md)
+[![ADRs: 8 Decisions](https://img.shields.io/badge/adrs-8%20decisions-purple.svg)](DECISIONS.md) 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Tests: 53 passed](https://img.shields.io/badge/tests-53%20passed-brightgreen.svg)]()
 [![Standard Eval: 100%](https://img.shields.io/badge/standard%20eval-100%25-brightgreen.svg)]()
