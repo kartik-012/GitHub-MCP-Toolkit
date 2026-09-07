@@ -65,7 +65,6 @@ A production-grade, fault-tolerant, and benchmarked **Model Context Protocol (MC
 | **Triage LLM** | Local `llama3.2:1b` (Ollama) | $0 operational cost, fully offline execution | Lower first-pass JSON schema adherence than GPT-4o (handled via fallback parser) |
 
 
-
 ### 3. ⚠️ Failures & Post-Mortems (Real Issues Found & Fixed)
 
 > [!WARNING]
@@ -93,7 +92,6 @@ Optimized Accuracy: [███████████████████�
 Adversarial Pass:  [████████████████████] 100.0%  (20/20 Attack Mitigation)
 Unit Test Pass:    [████████████████████] 53/53 Passed
 ```
-
 
 
 ## 🏗️ System Architecture
