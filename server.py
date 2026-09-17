@@ -6,7 +6,7 @@ the structured JSON audit logger before starting the stdio transport.
 """ 
 
 import os
-import time
+import time 
 import json
 import logging
 
