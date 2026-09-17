@@ -2,7 +2,7 @@
 GitHub MCP Toolkit — FastMCP Server Entry Point 
 ================================================
 Registers all 11 MCP tools (8 core + 3 advanced) and configures
-the structured JSON audit logger before starting the stdio transport.
+the structured JSON audit logger before starting the stdio transport. 
 """ 
 
 import os
