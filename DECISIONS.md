@@ -1,5 +1,6 @@
 # Architectural Decision Records (ADR) & Interview Talking Cards
 
+
 Key technical decisions made while designing `github-mcp-toolkit`, with trade-offs, measured impact, and interview-ready answer cards.
 
 ---
