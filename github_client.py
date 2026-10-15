@@ -1,10 +1,11 @@
 import os
 import time
 import logging
+import itertools
 from datetime import datetime, timezone, timedelta
 from typing import List, Dict, Any, Optional
 from dotenv import load_dotenv
-from github import Github, GithubException, RateLimitExceededException
+from github import Github, Auth, GithubException, RateLimitExceededException
 from circuit_breaker import CircuitBreaker, CircuitBreakerOpenError
 
 # Ensure .env is loaded from the directory this script lives in
@@ -18,19 +19,24 @@ class GitHubClient:
     """
     Production-grade GitHub API client wrapper for MCP server.
     Implements caching, PR filtering, rate limit handling with exponential
-    backoff, pagination iteration, write idempotency checks, and a
-    Circuit Breaker that trips after 3 consecutive failures to prevent
-    cascading API errors from reaching the LLM.
+    backoff, lazy bounded pagination iteration, write idempotency checks,
+    explicit socket timeouts, and a Circuit Breaker that trips after 3
+    consecutive failures to prevent cascading API errors from reaching the LLM.
     """
 
-    def __init__(self, token: Optional[str] = None):
+    DEFAULT_TIMEOUT_SECONDS = 15
+    DEFAULT_PER_PAGE = 30
+
+    def __init__(self, token: Optional[str] = None, timeout: int = DEFAULT_TIMEOUT_SECONDS):
         self.token = token or os.getenv("GITHUB_TOKEN")
+        self.timeout = timeout
         if not self.token:
             # Fallback/mock mode notice if token not provided, raised on real API access
             self.gh = None
             self.user = None
         else:
-            self.gh = Github(self.token)
+            auth = Auth.Token(self.token)
+            self.gh = Github(auth=auth, timeout=self.timeout, per_page=self.DEFAULT_PER_PAGE)
             self._user_cache = None
 
         # Per-instance circuit breaker — prevents cascading API failures.
@@ -82,12 +88,18 @@ class GitHubClient:
                 else:
                     raise
 
-    def list_open_issues(self, repo_name: Optional[str] = None, bypass_cache: bool = False) -> List[Dict[str, Any]]:
+    def list_open_issues(
+        self,
+        repo_name: Optional[str] = None,
+        bypass_cache: bool = False,
+        max_results: int = 100,
+        max_repos: int = 20,
+    ) -> List[Dict[str, Any]]:
         """
-        Return open issues across all user repositories or a specified repository.
-        Excludes Pull Requests and iterates through all pages.
+        Return open issues across user repositories or a specified repository.
+        Excludes Pull Requests and enforces lazy max_results / max_repos safety bounds.
         """
-        cache_key = f"open_issues:{repo_name or 'ALL'}"
+        cache_key = f"open_issues:{repo_name or 'ALL'}:{max_results}:{max_repos}"
         if not bypass_cache and cache_key in self._cache:
             entry = self._cache[cache_key]
             if time.time() - entry["timestamp"] < self.cache_ttl:
@@ -98,13 +110,14 @@ class GitHubClient:
         def _fetch():
             if repo_name:
                 target_repo = f"{user.login}/{repo_name}" if "/" not in repo_name else repo_name
-                repos = [self.gh.get_repo(target_repo)]
+                repos_iter = [self.gh.get_repo(target_repo)]
             else:
-                repos = list(user.get_repos())
+                # Lazy slice over PaginatedList so PyGithub stops fetching pages at max_repos
+                repos_iter = itertools.islice(user.get_repos(), max_repos)
 
             results = []
-            for repo in repos:
-                # get_issues returns a PaginatedList, iterating handles pagination
+            for repo in repos_iter:
+                # get_issues returns a PaginatedList; break early once max_results reached
                 for issue in repo.get_issues(state="open"):
                     if issue.pull_request is None:  # Exclude PRs
                         results.append({
@@ -118,20 +131,22 @@ class GitHubClient:
                             "updated_at": issue.updated_at.isoformat() if issue.updated_at else None,
                             "url": issue.html_url
                         })
+                        if len(results) >= max_results:
+                            return results
             return results
 
         results = self._call_with_retry(_fetch)
         self._cache[cache_key] = {"data": results, "timestamp": time.time()}
         return results
 
-    def list_repositories(self) -> List[Dict[str, Any]]:
+    def list_repositories(self, max_repos: int = 50) -> List[Dict[str, Any]]:
         """
-        Return all repositories accessible by the authenticated user.
+        Return repositories accessible by the authenticated user with bounded pagination.
         """
         user = self._get_authenticated_user()
 
         def _fetch():
-            repos = list(user.get_repos())
+            repos_iter = itertools.islice(user.get_repos(), max_repos)
             return [
                 {
                     "name": repo.name,
@@ -142,7 +157,7 @@ class GitHubClient:
                     "stars": repo.stargazers_count,
                     "language": repo.language or "Unknown"
                 }
-                for repo in repos
+                for repo in repos_iter
             ]
 
         return self._call_with_retry(_fetch)
@@ -158,17 +173,24 @@ class GitHubClient:
             if keyword_lower in i["title"].lower() or keyword_lower in i["body"].lower()
         ]
 
-    def create_issue(self, repo_name: str, title: str, body: str = "", labels: Optional[List[str]] = None) -> Dict[str, Any]:
+    def create_issue(
+        self,
+        repo_name: str,
+        title: str,
+        body: str = "",
+        labels: Optional[List[str]] = None,
+        max_idempotency_scan: int = 100,
+    ) -> Dict[str, Any]:
         """
-        Create a new GitHub issue with idempotency check to prevent duplicates on retries.
+        Create a new GitHub issue with bounded idempotency check to prevent duplicates on retries.
         """
         user = self._get_authenticated_user()
         target_repo = f"{user.login}/{repo_name}" if "/" not in repo_name else repo_name
 
         def _execute():
             repo = self.gh.get_repo(target_repo)
-            # Idempotency check: search open issues for exact title match
-            for issue in repo.get_issues(state="open"):
+            # Bounded idempotency check: scan up to max_idempotency_scan recent open issues
+            for issue in itertools.islice(repo.get_issues(state="open"), max_idempotency_scan):
                 if issue.pull_request is None and issue.title.strip().lower() == title.strip().lower():
                     return {
                         "status": "already_exists",
@@ -241,9 +263,51 @@ class GitHubClient:
 
         return self._call_with_retry(_execute)
 
-    def find_stale_issues(self, repo_name: str, days_inactive: int = 30) -> List[Dict[str, Any]]:
+    def reopen_issue(self, repo_name: str, issue_number: int) -> Dict[str, Any]:
         """
-        Find open issues with no update for `days_inactive` days.
+        Reopen a closed issue (used by Saga compensation rollback).
+        """
+        user = self._get_authenticated_user()
+        target_repo = f"{user.login}/{repo_name}" if "/" not in repo_name else repo_name
+
+        def _execute():
+            repo = self.gh.get_repo(target_repo)
+            issue = repo.get_issue(issue_number)
+            issue.edit(state="open")
+            self._invalidate_cache(repo.name)
+            return {
+                "status": "reopened",
+                "repo": repo.name,
+                "issue_number": issue_number,
+                "state": "open"
+            }
+
+        return self._call_with_retry(_execute)
+
+    def remove_label(self, repo_name: str, issue_number: int, label: str) -> Dict[str, Any]:
+        """
+        Remove a label from an issue (used by Saga compensation rollback).
+        """
+        user = self._get_authenticated_user()
+        target_repo = f"{user.login}/{repo_name}" if "/" not in repo_name else repo_name
+
+        def _execute():
+            repo = self.gh.get_repo(target_repo)
+            issue = repo.get_issue(issue_number)
+            issue.remove_from_labels(label)
+            self._invalidate_cache(repo.name)
+            return {
+                "status": "label_removed",
+                "repo": repo.name,
+                "issue_number": issue_number,
+                "label": label
+            }
+
+        return self._call_with_retry(_execute)
+
+    def find_stale_issues(self, repo_name: str, days_inactive: int = 30, max_results: int = 100) -> List[Dict[str, Any]]:
+        """
+        Find open issues with no update for `days_inactive` days (bounded by max_results).
         """
         user = self._get_authenticated_user()
         target_repo = f"{user.login}/{repo_name}" if "/" not in repo_name else repo_name
@@ -264,6 +328,8 @@ class GitHubClient:
                         "last_updated": issue.updated_at.isoformat(),
                         "url": issue.html_url
                     })
+                    if len(stale) >= max_results:
+                        break
                 else:
                     # Ascending order, so remaining issues are newer than cutoff
                     break
@@ -331,7 +397,27 @@ class GitHubClient:
                 "used": rate.limit - rate.remaining
             }
 
-        return self._call_with_retry(_execute)
+        res = self._call_with_retry(_execute)
+        self._cache["rate_limit"] = {"data": res, "timestamp": time.time()}
+        return res
+
+    def get_cached_rate_remaining(self) -> Optional[int]:
+        """
+        Return cached GitHub API remaining quota (int) for PolicyEngine evaluation.
+        Returns None if unavailable or unconfigured in mock environments.
+        """
+        if "rate_limit" in self._cache:
+            entry = self._cache["rate_limit"]
+            if time.time() - entry["timestamp"] < self.cache_ttl:
+                rem = entry["data"].get("remaining")
+                if isinstance(rem, int):
+                    return rem
+        try:
+            status = self.get_rate_limit_status()
+            rem = status.get("remaining")
+            return rem if isinstance(rem, int) else None
+        except Exception:
+            return None
 
     def _invalidate_cache(self, repo_name: Optional[str] = None):
         if repo_name:

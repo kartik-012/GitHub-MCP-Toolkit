@@ -5,12 +5,19 @@ from transaction_journal import TransactionJournal
 
 def register(mcp, gh):
     @mcp.tool()
-    def close_issue(repo_name: str, issue_number: int, comment: str = "", confirmed: bool = False) -> Dict[str, Any]:
+    def close_issue(
+        repo_name: str,
+        issue_number: int,
+        comment: str = "",
+        confirmed: bool = False,
+        preview_token: str = "",
+    ) -> Dict[str, Any]:
         """
         Close an existing open GitHub issue, optionally leaving a final comment.
         
         GUARDRAILS:
-        - ABAC Policy Engine evaluation (write-freeze check).
+        - ABAC Policy Engine evaluation (write-freeze check & DLP comment scan).
+        - Cryptographic 2-Phase Preview Token binding.
         - Saga Pattern transaction recording for undo_last_action rollback (reopen).
         
         IMPORTANT: Closing an issue alters state.
@@ -23,22 +30,41 @@ def register(mcp, gh):
                 "message": "repo_name and positive issue_number are required."
             }
 
-        # ── ABAC Policy Check ──────────────────────────────────────────────
+        # ── ABAC & DLP Policy Check ────────────────────────────────────────
         allowed, reason = PolicyEngine.evaluate(
-            "close_issue", {"repo_name": repo_name, "issue_number": issue_number}
+            "close_issue",
+            {"repo_name": repo_name, "issue_number": issue_number, "comment": comment},
+            rate_limit_remaining=PolicyEngine.get_client_rate_remaining(gh),
         )
         if not allowed:
             return {"status": "policy_denied", "reason": reason}
 
+        fingerprint = {"repo_name": repo_name.strip(), "issue_number": issue_number}
+
         if not confirmed:
+            token = PolicyEngine.issue_write_preview_token("close_issue", fingerprint)
+            blast = PolicyEngine.estimate_blast_radius(
+                "close_issue",
+                affected_entities=1,
+                rate_limit_remaining=PolicyEngine.get_client_rate_remaining(gh),
+            )
             return {
                 "status": "confirmation_required",
                 "action": "close_issue",
+                "preview_token": token,
+                "blast_radius": blast,
                 "repo_name": repo_name,
                 "issue_number": issue_number,
                 "comment": comment,
-                "message": f"Confirmation Required: Close issue #{issue_number} in '{repo_name}'? Please confirm with confirmed=True."
+                "message": (
+                    f"Confirmation Required: Close issue #{issue_number} in '{repo_name}'? "
+                    f"Please confirm with confirmed=True and preview_token='{token}'."
+                ),
             }
+
+        tok_ok, tok_reason = PolicyEngine.verify_write_preview_token("close_issue", fingerprint, preview_token)
+        if not tok_ok:
+            return {"status": "error", "type": "invalid_preview_token", "message": tok_reason}
 
         try:
             result = gh.close_issue(repo_name.strip(), issue_number, comment.strip() if comment else None)

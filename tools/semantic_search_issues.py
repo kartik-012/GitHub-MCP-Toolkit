@@ -21,10 +21,11 @@ def register(mcp, gh):
 
         try:
             issues = gh.list_open_issues(repo_name if repo_name else None)
-            ranked = VectorEngine.rank_documents(query.strip(), issues, top_k=top_k)
+            ranked = VectorEngine.hybrid_rrf_search(query.strip(), issues, top_k=top_k)
             return {
                 "status": "success",
                 "query": query,
+                "ranking_method": "hybrid_rrf_tfidf",
                 "total_matched": len(ranked),
                 "results": ranked
             }

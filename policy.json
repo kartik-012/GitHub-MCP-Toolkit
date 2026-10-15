@@ -1,6 +1,10 @@
 {
+  "active_role": "maintainer",
   "max_bulk_limit": 15,
   "min_rate_limit_remaining": 20,
+  "max_writes_per_minute": 30,
   "restricted_labels": ["security-critical", "production-outage", "do-not-modify"],
   "allow_writes": true
 }
+
+

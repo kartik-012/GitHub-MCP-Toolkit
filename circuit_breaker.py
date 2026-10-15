@@ -17,6 +17,7 @@ and provides graceful degradation with a structured error response.
 
 import time
 import logging
+import threading
 from enum import Enum
 from typing import Callable, Any, Dict
 
@@ -32,6 +33,86 @@ class CircuitState(Enum):
 class CircuitBreakerOpenError(Exception):
     """Raised when a call is rejected because the circuit is open."""
     pass
+
+
+class ChaosInjector:
+    """
+    Deterministic Chaos & Fault-Injection Resilience Harness.
+    Allows tests and resilience drills to inject controlled upstream GitHub API faults
+    (HTTP 502 Bad Gateway, HTTP 429 Secondary Rate Limit, HTTP 504 Gateway Timeout,
+    and synthetic latency jitter) directly inside `CircuitBreaker.call()`.
+    """
+
+    _lock = threading.Lock()
+    _enabled: bool = False
+    _fault_type: str = "502_bad_gateway"
+    _remaining_faults: int = 0
+    _latency_ms: float = 0.0
+    _injected_count: int = 0
+
+    FAULT_MESSAGES = {
+        "502_bad_gateway": "Chaos Fault Injection: HTTP 502 Bad Gateway from upstream GitHub API",
+        "429_secondary_rate_limit": "Chaos Fault Injection: HTTP 429 Secondary Rate Limit Exceeded (Retry-After: 60s)",
+        "504_gateway_timeout": "Chaos Fault Injection: HTTP 504 Gateway Timeout",
+    }
+
+    @classmethod
+    def configure(
+        cls,
+        enabled: bool = True,
+        fault_type: str = "502_bad_gateway",
+        remaining_faults: int = 1,
+        latency_ms: float = 0.0,
+    ) -> None:
+        with cls._lock:
+            cls._enabled = enabled
+            cls._fault_type = fault_type
+            cls._remaining_faults = max(0, int(remaining_faults))
+            cls._latency_ms = max(0.0, float(latency_ms))
+            cls._injected_count = 0
+
+    @classmethod
+    def reset(cls) -> None:
+        with cls._lock:
+            cls._enabled = False
+            cls._remaining_faults = 0
+            cls._latency_ms = 0.0
+            cls._injected_count = 0
+
+    @classmethod
+    def status(cls) -> Dict[str, Any]:
+        with cls._lock:
+            return {
+                "enabled": cls._enabled,
+                "fault_type": cls._fault_type,
+                "remaining_faults": cls._remaining_faults,
+                "latency_ms": cls._latency_ms,
+                "injected_count": cls._injected_count,
+            }
+
+    @classmethod
+    def maybe_inject_fault(cls) -> None:
+        delay_sec = 0.0
+        should_raise = False
+        fault_kind = "502_bad_gateway"
+        with cls._lock:
+            if not cls._enabled or cls._remaining_faults <= 0:
+                return
+            cls._remaining_faults -= 1
+            cls._injected_count += 1
+            delay_sec = cls._latency_ms / 1000.0
+            should_raise = True
+            fault_kind = cls._fault_type
+            if cls._remaining_faults == 0:
+                cls._enabled = False
+
+        if delay_sec > 0:
+            time.sleep(delay_sec)
+        if should_raise:
+            msg = cls.FAULT_MESSAGES.get(fault_kind, f"Chaos Fault Injection: {fault_kind}")
+            if fault_kind == "504_gateway_timeout":
+                raise TimeoutError(msg)
+            raise RuntimeError(msg)
 
 
 class CircuitBreaker:
@@ -58,9 +139,11 @@ class CircuitBreaker:
         self.failure_threshold = failure_threshold
         self.cooldown_seconds = cooldown_seconds
 
+        self._lock = threading.RLock()
         self._state: CircuitState = CircuitState.CLOSED
         self._failure_count: int = 0
         self._last_opened_at: float = 0.0
+        self._probe_in_flight: bool = False
 
     # ------------------------------------------------------------------
     # Public API
@@ -69,27 +152,38 @@ class CircuitBreaker:
     @property
     def state(self) -> CircuitState:
         """Return current state, automatically transitioning OPEN → HALF_OPEN when cooldown expires."""
-        if self._state == CircuitState.OPEN:
-            if time.monotonic() - self._last_opened_at >= self.cooldown_seconds:
-                logger.info(f"[CircuitBreaker:{self.name}] Cooldown elapsed — entering HALF_OPEN.")
-                self._state = CircuitState.HALF_OPEN
-        return self._state
+        with self._lock:
+            if self._state == CircuitState.OPEN:
+                if time.monotonic() - self._last_opened_at >= self.cooldown_seconds:
+                    logger.info(f"[CircuitBreaker:{self.name}] Cooldown elapsed — entering HALF_OPEN.")
+                    self._state = CircuitState.HALF_OPEN
+                    self._probe_in_flight = False
+            return self._state
 
     def call(self, func: Callable[[], Any]) -> Any:
         """
-        Execute `func` if the circuit is CLOSED or HALF_OPEN.
-        Raises CircuitBreakerOpenError immediately if the circuit is OPEN.
+        Execute `func` if the circuit is CLOSED or HALF_OPEN (single probe).
+        Raises CircuitBreakerOpenError immediately if the circuit is OPEN or a HALF_OPEN probe is already in flight.
         """
-        current_state = self.state
+        with self._lock:
+            current_state = self.state
 
-        if current_state == CircuitState.OPEN:
-            remaining = self.cooldown_seconds - (time.monotonic() - self._last_opened_at)
-            raise CircuitBreakerOpenError(
-                f"Circuit breaker '{self.name}' is OPEN. "
-                f"Fast-failing. Retry in {remaining:.0f}s."
-            )
+            if current_state == CircuitState.OPEN:
+                remaining = max(0.0, self.cooldown_seconds - (time.monotonic() - self._last_opened_at))
+                raise CircuitBreakerOpenError(
+                    f"Circuit breaker '{self.name}' is OPEN. "
+                    f"Fast-failing. Retry in {remaining:.0f}s."
+                )
+
+            if current_state == CircuitState.HALF_OPEN:
+                if self._probe_in_flight:
+                    raise CircuitBreakerOpenError(
+                        f"Circuit breaker '{self.name}' is HALF_OPEN with a recovery probe already in flight."
+                    )
+                self._probe_in_flight = True
 
         try:
+            ChaosInjector.maybe_inject_fault()
             result = func()
             self._on_success()
             return result
@@ -99,48 +193,57 @@ class CircuitBreaker:
 
     def status(self) -> Dict[str, Any]:
         """Return a dict snapshot of this breaker's current state — useful for diagnostics."""
-        return {
-            "name": self.name,
-            "state": self.state.value,
-            "failure_count": self._failure_count,
-            "failure_threshold": self.failure_threshold,
-            "cooldown_seconds": self.cooldown_seconds,
-            "last_opened_at": self._last_opened_at or None,
-        }
+        with self._lock:
+            return {
+                "name": self.name,
+                "state": self.state.value,
+                "failure_count": self._failure_count,
+                "failure_threshold": self.failure_threshold,
+                "cooldown_seconds": self.cooldown_seconds,
+                "last_opened_at": self._last_opened_at or None,
+            }
 
     def reset(self) -> None:
         """Manually reset the breaker to CLOSED (useful in tests or admin tools)."""
-        self._state = CircuitState.CLOSED
-        self._failure_count = 0
-        self._last_opened_at = 0.0
-        logger.info(f"[CircuitBreaker:{self.name}] Manually reset to CLOSED.")
+        with self._lock:
+            self._state = CircuitState.CLOSED
+            self._failure_count = 0
+            self._last_opened_at = 0.0
+            self._probe_in_flight = False
+            logger.info(f"[CircuitBreaker:{self.name}] Manually reset to CLOSED.")
 
     # ------------------------------------------------------------------
     # Internal state transitions
     # ------------------------------------------------------------------
 
     def _on_success(self) -> None:
-        if self._state == CircuitState.HALF_OPEN:
-            logger.info(f"[CircuitBreaker:{self.name}] Probe succeeded — closing circuit.")
-        self._state = CircuitState.CLOSED
-        self._failure_count = 0
+        with self._lock:
+            if self._state == CircuitState.HALF_OPEN:
+                logger.info(f"[CircuitBreaker:{self.name}] Probe succeeded — closing circuit.")
+            self._state = CircuitState.CLOSED
+            self._failure_count = 0
+            self._probe_in_flight = False
 
     def _on_failure(self, exc: Exception) -> None:
-        self._failure_count += 1
-        logger.warning(
-            f"[CircuitBreaker:{self.name}] Failure #{self._failure_count}/{self.failure_threshold}: {exc}"
-        )
+        with self._lock:
+            self._failure_count += 1
+            self._probe_in_flight = False
+            logger.warning(
+                f"[CircuitBreaker:{self.name}] Failure #{self._failure_count}/{self.failure_threshold}: {exc}"
+            )
 
-        if self._state == CircuitState.HALF_OPEN:
-            # Probe failed — trip back to OPEN immediately
-            self._trip()
-        elif self._failure_count >= self.failure_threshold:
-            self._trip()
+            if self._state == CircuitState.HALF_OPEN:
+                # Probe failed — trip back to OPEN immediately
+                self._trip()
+            elif self._failure_count >= self.failure_threshold:
+                self._trip()
 
     def _trip(self) -> None:
-        self._state = CircuitState.OPEN
-        self._last_opened_at = time.monotonic()
-        logger.error(
-            f"[CircuitBreaker:{self.name}] TRIPPED → OPEN. "
-            f"Will attempt half-open probe in {self.cooldown_seconds}s."
-        )
+        with self._lock:
+            self._state = CircuitState.OPEN
+            self._last_opened_at = time.monotonic()
+            self._probe_in_flight = False
+            logger.error(
+                f"[CircuitBreaker:{self.name}] TRIPPED → OPEN. "
+                f"Will attempt half-open probe in {self.cooldown_seconds}s."
+            )

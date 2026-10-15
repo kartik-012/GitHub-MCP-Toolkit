@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   github-mcp-server:
     build: .
@@ -9,8 +7,11 @@ services:
     environment:
       - GITHUB_TOKEN=${GITHUB_TOKEN}
       - MCP_TRANSPORT=sse
+      - MCP_AGENT_ROLE=${MCP_AGENT_ROLE:-admin}
       - OLLAMA_HOST=http://host.docker.internal:11434
       - OLLAMA_MODEL=llama3.2:1b
     volumes:
       - ./tool_calls.log:/app/tool_calls.log
+      - ./transactions.json:/app/transactions.json
+      - ./traces.jsonl:/app/traces.jsonl
     restart: unless-stopped
