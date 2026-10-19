@@ -12,7 +12,6 @@
 
 A production-grade, fault-tolerant, and benchmarked **Enterprise Model Context Protocol (MCP) Server** written in Python. Designed for real-world enterprise deployments, it provides Large Language Models (LLMs) with cryptographically governed, RBAC/ABAC-enforced, reversible, and token-budgeted access to GitHub repositories across **13 MCP Tools**, **4 Native MCP Resources**, and **2 Native MCP Prompts**.
 
----
 
 ## 📌 Quick Navigation & Key Documents
 
