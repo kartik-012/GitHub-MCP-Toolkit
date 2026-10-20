@@ -40,6 +40,7 @@ class TransactionJournal:
 
     @classmethod
     def _load_journal(cls) -> List[Dict[str, Any]]:
+        """Load records from transactions.json, returning empty list if missing or corrupt."""
         if not os.path.exists(JOURNAL_FILE):
             return []
         try:
@@ -50,6 +51,7 @@ class TransactionJournal:
 
     @classmethod
     def _save_journal(cls, records: List[Dict[str, Any]]) -> None:
+        """Atomically persist journal records via a temporary file replacement."""
         tmp_path = f"{JOURNAL_FILE}.tmp.{uuid.uuid4().hex[:8]}"
         try:
             with open(tmp_path, "w", encoding="utf-8") as f:
