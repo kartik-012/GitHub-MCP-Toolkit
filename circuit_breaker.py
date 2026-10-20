@@ -212,11 +212,19 @@ class CircuitBreaker:
             self._probe_in_flight = False
             logger.info(f"[CircuitBreaker:{self.name}] Manually reset to CLOSED.")
 
+    def __repr__(self) -> str:
+        """String representation of the CircuitBreaker instance and current state."""
+        return (
+            f"<CircuitBreaker name={self.name!r} state={self.state.value} "
+            f"failures={self._failure_count}/{self.failure_threshold}>"
+        )
+
     # ------------------------------------------------------------------
     # Internal state transitions
     # ------------------------------------------------------------------
 
     def _on_success(self) -> None:
+        """Handle a successful call execution by resetting failures and closing circuit."""
         with self._lock:
             if self._state == CircuitState.HALF_OPEN:
                 logger.info(f"[CircuitBreaker:{self.name}] Probe succeeded — closing circuit.")
@@ -225,6 +233,7 @@ class CircuitBreaker:
             self._probe_in_flight = False
 
     def _on_failure(self, exc: Exception) -> None:
+        """Record an operation failure and trip the circuit if threshold is reached."""
         with self._lock:
             self._failure_count += 1
             self._probe_in_flight = False
@@ -239,6 +248,7 @@ class CircuitBreaker:
                 self._trip()
 
     def _trip(self) -> None:
+        """Transition circuit breaker state to OPEN and initiate cooldown timer."""
         with self._lock:
             self._state = CircuitState.OPEN
             self._last_opened_at = time.monotonic()
