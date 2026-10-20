@@ -6,6 +6,9 @@ input) to the appropriate MCP tool using:
   1. Multi-intent clause isolation & quoted-payload sanitisation
   2. High-precision intent pattern rules across all 13 registered tools
   3. TF-IDF VectorEngine semantic similarity fallback for free-form human queries
+
+Automates verification across standard (80 queries) and adversarial (20 queries)
+suites, outputting structured reports to eval/last_run_log.json.
 """
 
 import os
