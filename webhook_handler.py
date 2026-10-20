@@ -20,7 +20,7 @@ import time
 import json
 import hashlib
 import threading
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, Optional, List, Tuple
 
 from policy_engine import PolicyEngine
 from vector_engine import VectorEngine
@@ -64,7 +64,7 @@ class GitHubWebhookProcessor:
         raw_body: bytes,
         signature_header: Optional[str],
         secret: Optional[str] = None,
-    ) -> tuple[bool, str]:
+    ) -> Tuple[bool, str]:
         """
         Verify `X-Hub-Signature-256` header using constant-time `hmac.compare_digest`.
         """
@@ -80,7 +80,7 @@ class GitHubWebhookProcessor:
         return True, "Signature verified."
 
     @classmethod
-    def check_and_record_delivery(cls, delivery_id: Optional[str]) -> tuple[bool, str]:
+    def check_and_record_delivery(cls, delivery_id: Optional[str]) -> Tuple[bool, str]:
         """
         Enforce single-use webhook delivery nonce (`X-GitHub-Delivery`) within TTL window
         to block replay attacks.
