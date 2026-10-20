@@ -25,6 +25,7 @@ class _AllowExtraModel(BaseModel):
 # ---------------------------------------------------------------------------
 
 class IssueSummary(_AllowExtraModel):
+    """Standardized summary representation of a GitHub repository issue."""
     repo: str
     number: int
     title: str
@@ -35,6 +36,7 @@ class IssueSummary(_AllowExtraModel):
 
 
 class SpanRecord(_AllowExtraModel):
+    """Execution span telemetric record capturing duration and execution status."""
     span: str
     duration_ms: Optional[float] = None
     status: str
@@ -46,18 +48,21 @@ class SpanRecord(_AllowExtraModel):
 # ---------------------------------------------------------------------------
 
 class IssueListResponse(_AllowExtraModel):
+    """Response payload returned when querying an issue list from a repository."""
     status: str
     total: Optional[int] = None
     issues: Optional[List[IssueSummary]] = None
 
 
 class ListRepositoriesResponse(_AllowExtraModel):
+    """Response payload returned when querying accessible repositories."""
     status: str
     total: Optional[int] = None
     repositories: Optional[List[Dict[str, Any]]] = None
 
 
 class SearchResponse(_AllowExtraModel):
+    """Response payload containing matching issues from keyword or semantic search."""
     status: str
     keyword: Optional[str] = None
     total_matched: Optional[int] = None
