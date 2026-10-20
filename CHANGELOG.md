@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [3.0.1] - 2026-10-20
+
+### Improved
+- **Documentation & Security**: Added responsible vulnerability disclosure guidelines and comprehensive `.env.example` configurations.
+- **Code Quality & Typing**: Refined Pydantic model field docstrings, tracer typing annotations, and circuit breaker state descriptions.
+
+---
+
 ## [3.0.0] - 2026-10-12
 
 ### Added — Principal Engineer & Next-Horizon Enterprise Capabilities
