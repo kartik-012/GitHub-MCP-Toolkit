@@ -10,6 +10,7 @@ services:
       - MCP_AGENT_ROLE=${MCP_AGENT_ROLE:-admin}
       - OLLAMA_HOST=http://host.docker.internal:11434
       - OLLAMA_MODEL=llama3.2:1b
+    # Persist audit logs, saga transaction journals, and telemetry traces on host
     volumes:
       - ./tool_calls.log:/app/tool_calls.log
       - ./transactions.json:/app/transactions.json
