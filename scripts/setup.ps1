@@ -17,9 +17,11 @@ if (-not (Test-Path "venv")) {
     python -m venv venv
 }
 
-# Activate virtual environment
+# Activate virtual environment (if execution policy permits)
 Write-Host "Activating virtual environment..." -ForegroundColor Yellow
-.\venv\Scripts\Activate.ps1
+if (Test-Path ".\venv\Scripts\Activate.ps1") {
+    .\venv\Scripts\Activate.ps1
+}
 
 # Upgrade pip and install dependencies
 Write-Host "Installing dependencies..." -ForegroundColor Yellow
