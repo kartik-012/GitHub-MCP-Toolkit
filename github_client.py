@@ -52,6 +52,7 @@ class GitHubClient:
         self.cache_ttl = 60  # seconds
 
     def _get_authenticated_user(self):
+        """Retrieve and cache the authenticated GitHub user profile, validating token presence."""
         if not self.gh:
             raise ValueError("GITHUB_TOKEN is not set in environment or config.")
         if self._user_cache is None:
