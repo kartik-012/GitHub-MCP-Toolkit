@@ -19,6 +19,7 @@ A production-grade, fault-tolerant, and benchmarked **Enterprise Model Context P
 |---|---|
 | 🎯 [**`DECISIONS.md`**](DECISIONS.md) | **Architecture Decision Records (12 ADRs)** & **Interview Answer Cards** |
 | 🛡️ [**`SECURITY.md`**](SECURITY.md) | **Multi-Layer Security Model, DLP, RBAC & Prompt Injection Sandbox Spec** |
+| 📊 [**`PROOF.md`**](PROOF.md) | **Cryptographic Engineering Proof & Live Micro-Benchmark Scorecard** |
 | 📜 [**`CHANGELOG.md`**](CHANGELOG.md) | **Version history, feature additions, and security fixes** |
 | 🐳 [**`Dockerfile`**](Dockerfile) / [**`docker-compose.yml`**](docker-compose.yml) | **Containerized SSE transport deployment configuration** |
 
