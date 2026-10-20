@@ -1,7 +1,7 @@
 import math
 import re
 from collections import Counter
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional, Tuple
 
 
 class VectorEngine:
@@ -69,7 +69,7 @@ class VectorEngine:
         cls,
         text1: str,
         text2: str,
-        idf_weights: Dict[str, float] | None = None,
+        idf_weights: Optional[Dict[str, float]] = None,
     ) -> float:
         """
         Compute TF-IDF cosine similarity (0.0 to 1.0) between two texts.
