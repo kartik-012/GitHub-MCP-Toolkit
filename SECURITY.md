@@ -52,3 +52,20 @@ Untrusted GitHub issue titles and bodies can contain indirect prompt-injection p
 
 - **Blockchain-Style Audit Log (`transaction_journal.py`)**: Every write record links `prev_hash` and `record_hash = SHA256(canonical_payload || prev_hash)`. Calling `verify_chain_integrity()` or reading `github://journal/integrity` detects any out-of-band log modification or deletion.
 - **SOC-2 / ISO-27001 Compliance Attestation (`github://compliance/snapshot`)**: `PolicyEngine.export_compliance_snapshot()` exports a canonical JSON governance snapshot signed with a 64-character `snapshot_sha256` digest.
+
+---
+
+## 6. Vulnerability Reporting & Responsible Disclosure
+
+We take the security of `github-mcp-toolkit` seriously. If you discover a security vulnerability, please report it responsibly:
+
+### Reporting a Vulnerability
+- **Do not open public GitHub issues** for security vulnerabilities.
+- Submit reports via GitHub Private Vulnerability Reporting or reach out to repository maintainers.
+- Include a Proof of Concept (PoC) or reproducible steps, affected components, and potential impact.
+
+### Response SLA & Coordination
+- **Initial Acknowledgement**: Within 24-48 business hours.
+- **Triage & Assessment**: Within 5 business days.
+- **Patch & Advisory Release**: Coordinated with the reporter before public disclosure.
+
