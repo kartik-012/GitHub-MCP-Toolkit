@@ -14,6 +14,7 @@ import json
 import logging
 import inspect
 import functools
+from typing import Dict, Any
 
 try:
     from fastmcp import FastMCP
@@ -54,7 +55,7 @@ logger = logging.getLogger("github_mcp_toolkit")
 
 def log_audit_trail(
     tool_name: str,
-    args: dict,
+    args: Dict[str, Any],
     status: str,
     duration_ms: float,
     error: str = "",
