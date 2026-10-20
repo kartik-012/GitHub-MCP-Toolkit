@@ -1,6 +1,8 @@
 # Cryptographic Engineering Proof & Micro-Benchmark Scorecard (`PROOF.md`)
 
-> **Reproducible in 1 Command**: Run `.\venv\Scripts\python.exe eval/generate_proof_report.py` to execute all live subsystem checks and regenerate this report.
+> **Reproducible in 1 Command**:
+> - Windows: `.\venv\Scripts\python.exe eval/generate_proof_report.py`
+> - Linux/macOS: `python3 eval/generate_proof_report.py`
 > - **Attestation Digest (`proof_sha256`)**: `9928bd4adb9493644975cd7732e46659c96e20d06cc478d5548defa0cc7fab64`
 > - **MCP Spec Primitives Verified**: `13 Tools`, `5 Native Resources`, `2 Native Prompts` (`parity_ok = True`)
 
