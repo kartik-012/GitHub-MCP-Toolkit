@@ -42,12 +42,14 @@ class Span:
         self.metadata: Dict[str, Any] = {}
 
     def finish(self, status: str = "ok", **metadata: Any) -> None:
+        """Mark span as finished, calculating duration and recording final metadata."""
         self.duration_ms = round((time.perf_counter() - self._start) * 1000, 2)
         self.end_unix_ns = time.time_ns()
         self.status = status
         self.metadata.update(metadata)
 
     def to_dict(self) -> Dict[str, Any]:
+        """Serialize span into dictionary representation for JSON logging."""
         d: Dict[str, Any] = {
             "span": self.name,
             "span_id": self.span_id,
