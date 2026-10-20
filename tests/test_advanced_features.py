@@ -334,6 +334,13 @@ class TestCircuitBreaker:
         assert "failure_threshold" in status
         assert "cooldown_seconds" in status
 
+    def test_repr_returns_formatted_string(self):
+        cb = self.make_breaker(threshold=3)
+        repr_str = repr(cb)
+        assert "<CircuitBreaker" in repr_str
+        assert "name='test'" in repr_str
+        assert "state=closed" in repr_str
+
 
 # ===========================================================================
 # Tracer Tests
