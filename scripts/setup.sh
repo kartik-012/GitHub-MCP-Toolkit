@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # GitHub MCP Toolkit — Development Environment Setup Script
 
-set -e
+# Safe bash execution mode
+set -euo pipefail
 
 echo "===================================================="
 echo " Setting up GitHub MCP Toolkit Development Env"
