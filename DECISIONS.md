@@ -76,6 +76,14 @@ Key technical decisions made while designing `github-mcp-toolkit`, with trade-of
 
 ---
 
+## ADR-9 — Zero-Dependency W3C Distributed Tracing & Telemetry Architecture
+
+- **Decision**: Implemented an OpenTelemetry-compatible, W3C Trace Context-compliant tracer (`tracer.py`) using Python standard library `contextvars`, `threading.RLock`, and structured `traces.jsonl` ring buffers without external telemetry SDK dependencies.
+- **Why**: Standard OpenTelemetry SDKs introduce significant dependency footprints and startup latency. Built-in `contextvars` context propagation provides asynchronous span nesting and W3C `traceparent` propagation with sub-millisecond execution overhead.
+- **Measured impact**: Maintained 0 external telemetry dependencies while supporting native `github://telemetry/slo` percentile latency extraction (`p50`/`p95`).
+
+---
+
 ## 🎴 Interview Answer Cards
 
 ### Q: "Everyone builds basic CRUD MCP wrappers. What makes your MCP server enterprise-grade?"
