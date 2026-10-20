@@ -12,11 +12,12 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code and transfer ownership to non-root user
 COPY --chown=mcpuser:mcpuser . .
 
-# Environment defaults
+# Environment defaults for containerized execution
 ENV PYTHONUNBUFFERED=1
 ENV MCP_TRANSPORT=sse
 ENV MCP_AGENT_ROLE=admin
 
+# Expose default HTTP SSE transport port
 EXPOSE 8000
 
 USER mcpuser
