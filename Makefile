@@ -1,9 +1,9 @@
-.PHONY: help install test eval run docker-build docker-up clean
+.PHONY: help install test eval run run-sse docker-build docker-up clean
 
 help:
 	@echo "GitHub MCP Toolkit — Available Commands:"
 	@echo "  make install      Install Python dependencies"
-	@echo "  make test         Run 53 PyTest unit & integration tests"
+	@echo "  make test         Run 121 PyTest unit & integration tests"
 	@echo "  make eval         Run 100-query dual evaluation benchmark"
 	@echo "  make run          Start MCP server in stdio mode (Claude Desktop)"
 	@echo "  make run-sse      Start MCP server in SSE mode (HTTP port 8000)"
