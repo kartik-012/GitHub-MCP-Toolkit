@@ -48,6 +48,7 @@ class PolicyEngine:
 
     @classmethod
     def load_policy(cls) -> Dict[str, Any]:
+        """Load enterprise policy rules from policy.json with defensive safe defaults fallback."""
         if not os.path.exists(POLICY_FILE):
             return {
                 "max_bulk_limit": 15,
