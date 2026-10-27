@@ -21,6 +21,7 @@ SECRET_PATTERNS = [
     ),
     (re.compile(r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----"), "PEM Private Key"),
     (re.compile(r"\b(?!000|666|9\d\d)\d{3}-(?!00)\d{2}-(?!0000)\d{4}\b"), "PII (US Social Security Number)"),
+    (re.compile(r"hf_[A-Za-z0-9]{34,}"), "Hugging Face Access Token"),
 ]
 
 # Key-value assignment pattern for high-entropy custom secrets (e.g., DB_PASSWORD=..., JWT_SECRET=...)
