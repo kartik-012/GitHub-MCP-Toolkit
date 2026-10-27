@@ -119,6 +119,17 @@ class TestVectorEngine:
         )
         assert score == 1.0
 
+    def test_filter_by_min_score(self):
+        docs = [
+            {"title": "Doc A", "similarity_score": 0.85},
+            {"title": "Doc B", "similarity_score": 0.35},
+            {"title": "Doc C", "similarity_score": 0.05},
+        ]
+        filtered = VectorEngine.filter_by_min_score(docs, min_score=0.3)
+        assert len(filtered) == 2
+        assert filtered[0]["title"] == "Doc A"
+        assert filtered[1]["title"] == "Doc B"
+
 
 # ===========================================================================
 # TransactionJournal Tests
@@ -184,6 +195,19 @@ class TestTransactionJournal:
         last = TransactionJournal.get_last_committed_transaction()
         assert last["tx_id"] == tx1
 
+    def test_get_transaction_count_and_committed(self):
+        assert TransactionJournal.get_transaction_count() == 0
+        tx1 = TransactionJournal.record_transaction("create_issue", "o/r", {"title": "A"}, {"undo": "close"})
+        tx2 = TransactionJournal.record_transaction("add_label", "o/r", {"label": "L"}, {"undo": "remove"})
+        assert TransactionJournal.get_transaction_count() == 2
+        assert TransactionJournal.get_transaction_count("committed") == 2
+        TransactionJournal.mark_reverted(tx1)
+        assert TransactionJournal.get_transaction_count("committed") == 1
+        assert TransactionJournal.get_transaction_count("reverted") == 1
+        committed = TransactionJournal.get_committed_transactions()
+        assert len(committed) == 1
+        assert committed[0]["tx_id"] == tx2
+
 
 # ===========================================================================
 # PolicyEngine Tests
@@ -246,6 +270,10 @@ class TestPolicyEngine:
         allowed, reason = self._evaluate("bulk_label_stale_issues", {"affected_count": 20})
         assert allowed is False
         assert "bulk" in reason.lower() or "limit" in reason.lower()
+
+    def test_dlp_detects_huggingface_token(self):
+        hf_text = "HuggingFace secret: hf_abcdefghijklmnopqrstuvwxyz0123456789"
+        assert PolicyEngine.scan_for_secrets(hf_text) == "Hugging Face Access Token"
 
 
 # ===========================================================================
@@ -340,6 +368,15 @@ class TestCircuitBreaker:
         assert "<CircuitBreaker" in repr_str
         assert "name='test'" in repr_str
         assert "state=closed" in repr_str
+
+    def test_is_available_property(self):
+        cb = self.make_breaker(threshold=1)
+        assert cb.is_available is True
+        with pytest.raises(Exception):
+            cb.call(lambda: (_ for _ in ()).throw(RuntimeError("fail")))
+        assert cb.is_available is False
+        cb.reset()
+        assert cb.is_available is True
 
 
 # ===========================================================================
