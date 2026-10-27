@@ -276,3 +276,17 @@ def validate_tool_output(tool_name: str, result: Any) -> Any:
         return compacted
     return validate(schema, compacted)
 
+
+def is_valid_payload(schema_cls: Type[BaseModel], data: Any) -> bool:
+    """
+    Check if data conforms to a given Pydantic schema without raising ValidationError.
+    Returns True if valid, False otherwise.
+    """
+    if not isinstance(data, dict):
+        return False
+    try:
+        schema_cls.model_validate(data)
+        return True
+    except (ValidationError, Exception):
+        return False
+
