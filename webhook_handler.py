@@ -158,6 +158,18 @@ class GitHubWebhookProcessor:
             payload = json.loads(raw_body.decode("utf-8"))
             action = payload.get("action", "")
 
+            # Acknowledge GitHub ping webhook validation events
+            if event_type == "ping":
+                if is_owner:
+                    trace.commit(outcome="ping_acknowledged")
+                return {
+                    "status": "ping_acknowledged",
+                    "event": "ping",
+                    "zen": payload.get("zen", ""),
+                    "hook_id": payload.get("hook_id"),
+                    "delivery_id": delivery_id,
+                }
+
             if event_type != "issues" or action not in {"opened", "reopened", "edited"}:
                 if is_owner:
                     trace.commit(outcome="ignored")
