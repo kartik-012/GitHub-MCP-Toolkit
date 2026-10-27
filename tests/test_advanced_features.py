@@ -448,6 +448,20 @@ class TestTracer:
         assert results[0]["tool"] == "tool_second"  # newest first
         assert results[1]["tool"] == "tool_first"
 
+    def test_get_trace_by_id(self, tmp_path, monkeypatch):
+        import tracer
+        from tracer import Trace, get_trace_by_id
+        temp_trace_file = str(tmp_path / "traces_lookup.jsonl")
+        monkeypatch.setattr(tracer, "TRACES_FILE", temp_trace_file)
+
+        assert get_trace_by_id("nonexistent") is None
+        t = Trace("search_issues")
+        record = t.commit(outcome="success")
+        found = get_trace_by_id(record["trace_id"])
+        assert found is not None
+        assert found["tool"] == "search_issues"
+        assert found["trace_id"] == record["trace_id"]
+
 
 # ===========================================================================
 # Schema Validation Tests
@@ -488,6 +502,42 @@ class TestSchemas:
         result = validate(IssueListResponse, data)
         assert result["total"] == 1
         assert len(result["issues"]) == 1
+
+    def test_is_valid_payload(self):
+        from schemas import is_valid_payload, RateLimitResponse
+        valid_data = {"limit": 5000, "remaining": 5000}
+        bad_data = {"limit": "invalid_int"}
+        assert is_valid_payload(RateLimitResponse, valid_data) is True
+        assert is_valid_payload(RateLimitResponse, bad_data) is False
+        assert is_valid_payload(RateLimitResponse, "not_a_dict") is False
+
+
+# ===========================================================================
+# GitHubClient Utilities Tests
+# ===========================================================================
+
+class TestGitHubClientUtilities:
+
+    def test_parse_repo_identifier(self):
+        from github_client import GitHubClient
+        assert GitHubClient.parse_repo_identifier("octocat/Hello-World") == "octocat/Hello-World"
+        assert GitHubClient.parse_repo_identifier("Hello-World", default_owner="octocat") == "octocat/Hello-World"
+        assert GitHubClient.parse_repo_identifier("  /owner/repo/  ") == "owner/repo"
+
+    def test_clear_cache(self):
+        from github_client import GitHubClient
+        client = GitHubClient(token="mock_token")
+        client._cache["open_issues:repo1"] = {"data": [], "timestamp": 123}
+        client._cache["open_issues:repo2"] = {"data": [], "timestamp": 123}
+        client._cache["rate_limit"] = {"data": {}, "timestamp": 123}
+
+        cleared_prefix = client.clear_cache("open_issues:")
+        assert cleared_prefix == 2
+        assert "rate_limit" in client._cache
+
+        cleared_all = client.clear_cache()
+        assert cleared_all == 1
+        assert len(client._cache) == 0
 
 
 # ===========================================================================
@@ -2269,6 +2319,27 @@ class TestStaffAddition1WebhookHMACAndReplayGuard:
             secret=secret,
         )
         assert replay_res["status"] == "replay_blocked"
+
+    def test_webhook_ping_event_acknowledged(self):
+        import json
+        from webhook_handler import GitHubWebhookProcessor
+
+        secret = "test_ping_secret"
+        payload = json.dumps({"zen": "Keep it logically awesome.", "hook_id": 12345}).encode("utf-8")
+        sig = GitHubWebhookProcessor.compute_signature(secret, payload)
+
+        res = GitHubWebhookProcessor.process_webhook_event(
+            raw_body=payload,
+            headers={
+                "X-Hub-Signature-256": sig,
+                "X-GitHub-Delivery": "delivery-ping-01",
+                "X-GitHub-Event": "ping",
+            },
+            secret=secret,
+        )
+        assert res["status"] == "ping_acknowledged"
+        assert res["zen"] == "Keep it logically awesome."
+        assert res["hook_id"] == 12345
 
 
 class TestStaffAddition2MultiTenantFinOpsLedger:
