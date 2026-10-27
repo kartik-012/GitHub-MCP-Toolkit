@@ -15,13 +15,15 @@ def register(mcp, gh):
         keywords (use get_open_issues for general listing).
         """
         try:
-            if not keyword or not keyword.strip():
+            cleaned_keyword = (keyword or "").strip()
+            if not cleaned_keyword:
                 return {
                     "status": "error",
                     "type": "invalid_argument",
                     "message": "Keyword parameter cannot be empty for search_issues."
                 }
-            return gh.search_issues(keyword.strip(), repo_name if repo_name else None)
+            target_repo = repo_name.strip() if repo_name and repo_name.strip() else None
+            return gh.search_issues(cleaned_keyword, target_repo)
         except Exception as e:
             return {
                 "status": "error",
