@@ -270,3 +270,16 @@ class VectorEngine:
         )
         return fused_results[:top_k]
 
+    @classmethod
+    def filter_by_min_score(
+        cls,
+        ranked_docs: List[Dict[str, Any]],
+        min_score: float = 0.1,
+        score_key: str = "similarity_score",
+    ) -> List[Dict[str, Any]]:
+        """
+        Filter a list of scored documents by minimum score threshold.
+        Useful for pruning low-confidence search results or false-positive duplicate matches.
+        """
+        return [doc for doc in ranked_docs if doc.get(score_key, 0.0) >= min_score]
+
