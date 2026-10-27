@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [3.1.0] - 2026-10-27
+
+### Added
+- **Outbound DLP Expansion (`policy_engine.py`)**: Added Hugging Face User Access Token pattern (`hf_...`) to pre-compiled secret scanners.
+- **Circuit Breaker Availability Probe (`circuit_breaker.py`)**: Introduced `is_available` boolean property for rapid health check readiness.
+- **Saga Journal Query Utilities (`transaction_journal.py`)**: Added `get_transaction_count()` and `get_committed_transactions()` for transactional auditing and rollback status inspection.
+- **Search Result Threshold Filter (`vector_engine.py`)**: Added `filter_by_min_score()` helper to prune low-confidence duplicate matches.
+- **Targeted Trace Retrieval (`tracer.py`)**: Added `get_trace_by_id()` for direct lookup of trace records across telemetry logs.
+- **Safe Schema Validator (`schemas.py`)**: Added non-throwing `is_valid_payload()` utility for schema conformance checks.
+- **Client Cache Management & Repo Parsing (`github_client.py`)**: Added `clear_cache()` and `parse_repo_identifier()` utilities.
+- **Webhook Ping Acknowledgment (`webhook_handler.py`)**: Added first-class handling for GitHub webhook configuration validation ping events.
+- **Test Suite Expansion (`tests/test_advanced_features.py`)**: Expanded unit and integration suite to 130 passed tests.
+
+---
+
 ## [3.0.1] - 2026-10-20
 
 ### Improved
