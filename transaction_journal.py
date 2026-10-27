@@ -170,3 +170,19 @@ class TransactionJournal:
             journal = cls._load_journal()
             return list(reversed(journal))[:limit]
 
+    @classmethod
+    def get_transaction_count(cls, status: Optional[str] = None) -> int:
+        """Return the count of journaled transactions, optionally filtered by status ('committed', 'reverted')."""
+        with _JOURNAL_LOCK:
+            journal = cls._load_journal()
+            if status is None:
+                return len(journal)
+            return sum(1 for r in journal if r.get("status") == status)
+
+    @classmethod
+    def get_committed_transactions(cls) -> List[Dict[str, Any]]:
+        """Return all currently active committed transactions in reverse chronological order."""
+        with _JOURNAL_LOCK:
+            journal = cls._load_journal()
+            return [r for r in reversed(journal) if r.get("status") == "committed"]
+
