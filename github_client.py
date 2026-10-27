@@ -51,6 +51,28 @@ class GitHubClient:
         self._cache: Dict[str, Dict[str, Any]] = {}
         self.cache_ttl = 60  # seconds
 
+    @staticmethod
+    def parse_repo_identifier(repo_name: str, default_owner: Optional[str] = None) -> str:
+        """
+        Normalize repository identifier into 'owner/repo' format.
+        Trims whitespace, strips leading/trailing slashes, and prepends default_owner if single token.
+        """
+        cleaned = (repo_name or "").strip().strip("/")
+        if "/" not in cleaned and default_owner:
+            return f"{default_owner}/{cleaned}"
+        return cleaned
+
+    def clear_cache(self, prefix: Optional[str] = None) -> int:
+        """Clear cached API responses, optionally matching a specific cache key prefix."""
+        if prefix is None:
+            count = len(self._cache)
+            self._cache.clear()
+            return count
+        keys_to_remove = [k for k in list(self._cache.keys()) if k.startswith(prefix)]
+        for k in keys_to_remove:
+            del self._cache[k]
+        return len(keys_to_remove)
+
     def _get_authenticated_user(self):
         """Retrieve and cache the authenticated GitHub user profile, validating token presence."""
         if not self.gh:
