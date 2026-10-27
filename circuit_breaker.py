@@ -160,6 +160,11 @@ class CircuitBreaker:
                     self._probe_in_flight = False
             return self._state
 
+    @property
+    def is_available(self) -> bool:
+        """Return True if the circuit breaker can accept calls (CLOSED or HALF_OPEN)."""
+        return self.state != CircuitState.OPEN
+
     def call(self, func: Callable[[], Any]) -> Any:
         """
         Execute `func` if the circuit is CLOSED or HALF_OPEN (single probe).
