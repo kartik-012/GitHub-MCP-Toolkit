@@ -171,6 +171,24 @@ def read_recent_traces(limit: int = 10) -> List[Dict[str, Any]]:
         return []
 
 
+def get_trace_by_id(trace_id: str) -> Optional[Dict[str, Any]]:
+    """Lookup a single trace record by trace_id or w3c_trace_id (newest match first)."""
+    target = (trace_id or "").strip()
+    if not target or not os.path.exists(TRACES_FILE):
+        return None
+    try:
+        with _TRACE_FILE_LOCK:
+            with open(TRACES_FILE, "r", encoding="utf-8") as f:
+                lines = [line.strip() for line in f if line.strip()]
+        for line in reversed(lines):
+            record = json.loads(line)
+            if record.get("trace_id") == target or record.get("w3c_trace_id") == target:
+                return record
+    except Exception as e:
+        logger.warning(f"[Tracer] Failed to find trace {target}: {e}")
+    return None
+
+
 def get_telemetry_summary(records: Optional[List[Dict[str, Any]]] = None) -> Dict[str, Any]:
     """
     Compute live SLO & Guardrail Telemetry Diagnostics across trace records:
