@@ -119,6 +119,20 @@ class PolicyEngine:
 
         return None
 
+    @staticmethod
+    def mask_secret(secret_val: str, visible_prefix: int = 4, visible_suffix: int = 4) -> str:
+        """
+        Mask sensitive credentials for audit logs and telemetry diagnostics,
+        leaving small prefix and suffix visible for operator recognition.
+        e.g. 'ghp_1234567890abcdef1234' -> 'ghp_************1234'.
+        """
+        if not secret_val:
+            return ""
+        s = str(secret_val)
+        if len(s) <= visible_prefix + visible_suffix:
+            return "*" * len(s)
+        return s[:visible_prefix] + ("*" * (len(s) - visible_prefix - visible_suffix)) + s[-visible_suffix:]
+
     @classmethod
     def get_client_rate_remaining(cls, gh: Any) -> Optional[int]:
         """Safely extract integer remaining rate limit from a GitHubClient instance."""
