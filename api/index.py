@@ -472,6 +472,23 @@ def handle_api_action(payload: dict) -> dict:
         )
         return {"result": res}
 
+    if action == "webhook_ping":
+        from webhook_handler import GitHubWebhookProcessor
+        secret = "demo_webhook_secret_key"
+        delivery_id = f"deliv_{uuid.uuid4().hex[:10]}"
+        event_body = json.dumps({"zen": "Keep it logically awesome.", "hook_id": 9999}).encode("utf-8")
+        sig = GitHubWebhookProcessor.compute_signature(secret, event_body)
+        res = GitHubWebhookProcessor.process_webhook_event(
+            raw_body=event_body,
+            headers={
+                "X-Hub-Signature-256": sig,
+                "X-GitHub-Delivery": delivery_id,
+                "X-GitHub-Event": "ping",
+            },
+            secret=secret,
+        )
+        return {"result": res}
+
     return {"error": "Unknown action"}
 
 
@@ -596,6 +613,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
           <button class="danger" onclick="apiCall({action:'dlp_test',body:'Leaked HuggingFace token: hf_0123456789abcdefghijklmnopqrstuvwx'})">🤗 Test HuggingFace DLP</button>
           <button class="sec" onclick="apiCall({action:'rbac_switch'})">🔑 Cycle RBAC Role</button>
           <button class="warn" onclick="apiCall({action:'undo_last'})">↩️ Undo Last Write (Saga Rollback)</button>
+          <button class="sec" onclick="apiCall({action:'webhook_ping'})">🏓 Ping Webhook Event</button>
           <button class="danger" onclick="apiCall({action:'toggle_freeze'})" id="freeze-btn">🔒 Toggle Policy Write-Freeze</button>
           <button class="sec" onclick="apiCall({action:'compliance_snapshot'})">📋 Export SOC-2 Snapshot</button>
         </div>
