@@ -227,6 +227,22 @@ SLA_TARGETS_HOURS = {
 }
 
 
+def format_sla_target(priority: str) -> str:
+    """
+    Format SLA target duration into a human-readable SLA tier description:
+    e.g. 'critical' -> '4 hours (P0 Critical Incident)', 'low' -> '7 days (P3 Routine Backlog)'.
+    """
+    p = (priority or "medium").lower()
+    hours = SLA_TARGETS_HOURS.get(p, 72)
+    labels = {
+        "critical": f"{hours} hours (P0 Critical Incident)",
+        "high": f"{hours} hours (P1 High Priority)",
+        "medium": f"{hours} hours (P2 Standard Review)",
+        "low": f"{hours // 24} days (P3 Routine Backlog)",
+    }
+    return labels.get(p, f"{hours} hours")
+
+
 def _build_remediation_playbook(
     gh: Any,
     repo_name: str,
@@ -292,6 +308,7 @@ def _build_remediation_playbook(
 
     return {
         "sla_target_hours": sla_hours,
+        "sla_description": format_sla_target(priority),
         "recommended_next_tools": recommended_tools,
         "runbook_steps": runbook_steps,
         "related_open_issues": related_open_issues,
