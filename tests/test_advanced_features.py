@@ -2615,6 +2615,61 @@ class TestAITriageAndIntentScoring:
         assert out_of_domain["confidence"] == 0.0
 
 
+class TestCoreEngineEnhancements:
+    """Verify mask_secret, entropy levels, cooldown remaining, cosine distance, and payload sanitization."""
+
+    def test_mask_secret(self):
+        from policy_engine import PolicyEngine
+        masked = PolicyEngine.mask_secret("ghp_1234567890abcdef1234")
+        assert masked.startswith("ghp_")
+        assert masked.endswith("1234")
+        assert "*" in masked
+        assert PolicyEngine.mask_secret("short") == "*****"
+        assert PolicyEngine.mask_secret("") == ""
+
+    def test_calculate_entropy_level(self):
+        from policy_engine import PolicyEngine
+        assert PolicyEngine.calculate_entropy_level("4f9a8b1c2d3e4f5a6b7c8d9e0f") == "high"
+        assert PolicyEngine.calculate_entropy_level("aaaaaaaaaaaaaaaa") == "low"
+
+    def test_get_cooldown_remaining(self):
+        from circuit_breaker import CircuitBreaker
+        cb = CircuitBreaker("test_cooldown", failure_threshold=1, cooldown_seconds=30.0)
+        assert cb.get_cooldown_remaining() == 0.0
+
+    def test_compute_cosine_distance(self):
+        from vector_engine import VectorEngine
+        dist_same = VectorEngine.compute_cosine_distance("database failure", "database failure")
+        assert dist_same == 0.0
+        dist_diff = VectorEngine.compute_cosine_distance("database failure", "unrelated cooking recipe")
+        assert dist_diff > 0.8
+
+    def test_sanitize_payload_for_logging(self):
+        from schemas import sanitize_payload_for_logging
+        raw = {
+            "tool": "create_issue",
+            "token": "ghp_secret_token_123",
+            "nested": {"api_key": "sk-12345678", "normal": "value"}
+        }
+        clean = sanitize_payload_for_logging(raw)
+        assert clean["token"] == "[REDACTED]"
+        assert clean["nested"]["api_key"] == "[REDACTED]"
+        assert clean["nested"]["normal"] == "value"
+
+    def test_summarize_activity_by_tool(self, tmp_path, monkeypatch):
+        import transaction_journal
+        from transaction_journal import TransactionJournal
+        temp_journal = str(tmp_path / "journal_summary.json")
+        monkeypatch.setattr(transaction_journal, "JOURNAL_FILE", temp_journal)
+
+        TransactionJournal.record_transaction("create_issue", "o/r", {"t": 1}, {"u": 1})
+        TransactionJournal.record_transaction("create_issue", "o/r", {"t": 2}, {"u": 2})
+        summary = TransactionJournal.summarize_activity_by_tool()
+        assert "create_issue" in summary
+        assert summary["create_issue"]["committed"] == 2
+
+
+
 
 
 
