@@ -602,7 +602,10 @@ INDEX_HTML = r"""<!DOCTYPE html>
     </section>
 
     <section class="card">
-      <h2>Live Guardrail Output & Sandbox Issues</h2>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <h2 style="margin-bottom:0;">Live Guardrail Output & Sandbox Issues</h2>
+        <button class="sec" onclick="copyOutput()" style="padding:4px 10px;font-size:11.5px;">📋 Copy JSON</button>
+      </div>
       <p>Structured JSON response from the MCP server:</p>
       <pre id="out-box">// Click any action on the left to inspect the guardrail response...</pre>
       <h2 style="margin-top:16px;margin-bottom:8px;font-size:14px;">Repository Issues State</h2>
@@ -630,6 +633,19 @@ async function routeNow() {
     <span>Matched MCP Tool: <strong class="mono" style="color:#60a5fa;font-size:15px;">${d.predicted_tool || 'None (Out-of-Domain Rejected)'}</strong></span>
     <span style="font-size:12px;color:var(--muted);">${d.tool_doc}</span>
   </div>`;
+}
+
+async function copyOutput() {
+  const text = document.getElementById('out-box').textContent;
+  try {
+    await navigator.clipboard.writeText(text);
+    const btn = event.target;
+    const old = btn.textContent;
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => { btn.textContent = old; }, 1500);
+  } catch(e) {
+    console.error('Clipboard copy failed', e);
+  }
 }
 
 async function apiCall(payload) {
