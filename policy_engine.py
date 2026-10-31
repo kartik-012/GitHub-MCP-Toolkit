@@ -75,6 +75,19 @@ class PolicyEngine:
         counts = Counter(value)
         return round(-sum((c / length) * math.log2(c / length) for c in counts.values()), 4)
 
+    @classmethod
+    def calculate_entropy_level(cls, value: str) -> str:
+        """
+        Categorize the Shannon information entropy of an arbitrary value:
+        'high' (>= threshold 3.8), 'moderate' (>= 2.5), or 'low' (< 2.5).
+        """
+        entropy = cls.shannon_entropy(value)
+        if entropy >= cls.SHANNON_ENTROPY_THRESHOLD:
+            return "high"
+        if entropy >= 2.5:
+            return "moderate"
+        return "low"
+
     @staticmethod
     def _passes_luhn(digits_str: str) -> bool:
         """Validate a numeric string using the ISO/IEC 7812 Luhn checksum algorithm."""
