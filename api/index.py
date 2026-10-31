@@ -623,7 +623,10 @@ INDEX_HTML = r"""<!DOCTYPE html>
     <section class="card">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
         <h2 style="margin-bottom:0;">Live Guardrail Output & Sandbox Issues</h2>
-        <button class="sec" onclick="copyOutput()" style="padding:4px 10px;font-size:11.5px;">📋 Copy JSON</button>
+        <div style="display:flex;gap:6px;">
+          <button class="sec" onclick="clearOutput()" style="padding:4px 8px;font-size:11.5px;">Clear</button>
+          <button class="sec" onclick="copyOutput()" style="padding:4px 10px;font-size:11.5px;">📋 Copy JSON</button>
+        </div>
       </div>
       <p>Structured JSON response from the MCP server:</p>
       <pre id="out-box">// Click any action on the left to inspect the guardrail response...</pre>
@@ -655,6 +658,10 @@ async function routeNow() {
     <span>Matched MCP Tool: <strong class="mono" style="color:#60a5fa;font-size:15px;">${d.predicted_tool || 'None (Out-of-Domain Rejected)'}</strong></span>
     <span style="font-size:12px;color:var(--muted);">${d.tool_doc}</span>
   </div>`;
+}
+
+function clearOutput() {
+  document.getElementById('out-box').textContent = '// Console output cleared. Run an action on the left to inspect response...';
 }
 
 async function copyOutput() {
