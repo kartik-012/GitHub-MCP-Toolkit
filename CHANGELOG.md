@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [3.2.0] - 2026-10-31
+
+### Added
+- **Interactive Web Console Enhancements (`api/index.py`)**: Added copy-to-clipboard JSON utility, live issue filtering, console output clearing, keyboard routing shortcuts (`Ctrl+Enter`), and dedicated Hugging Face DLP / Webhook ping simulation triggers.
+- **AI Triage & Intent Routing (`tools/triage_issue.py`, `eval/run_eval.py`)**: Added `calculate_risk_level()` threat tier mapper, `format_sla_target()` SLA descriptor, and `classify_tool_intent_with_metadata()` reporting confidence scores and execution latency.
+- **Security & Threat Diagnostics (`policy_engine.py`)**: Added `mask_secret()` for safe audit log redaction and `calculate_entropy_level()` for Shannon entropy categorization.
+- **Fault-Tolerance & Telemetry Diagnostics (`circuit_breaker.py`, `tracer.py`)**: Added `get_cooldown_remaining()` cooldown countdown helper and `calculate_error_rate()` / `get_slow_traces()` telemetry filter utilities.
+- **Vector & Schema Utilities (`vector_engine.py`, `schemas.py`)**: Added `compute_cosine_distance()` metric and `sanitize_payload_for_logging()` recursive redactor.
+- **Saga Transaction Breakdown (`transaction_journal.py`)**: Added `summarize_activity_by_tool()` for FinOps activity aggregation.
+- **Test Suite Expansion (`tests/test_advanced_features.py`)**: Expanded unit and integration suite to 140 passed tests (100% pass rate).
+
+---
+
 ## [3.1.0] - 2026-10-27
 
 ### Added

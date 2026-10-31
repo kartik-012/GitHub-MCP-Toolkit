@@ -3,7 +3,7 @@
 help:
 	@echo "GitHub MCP Toolkit — Available Commands:"
 	@echo "  make install      Install Python dependencies"
-	@echo "  make test         Run 130 PyTest unit & integration tests"
+	@echo "  make test         Run 140 PyTest unit & integration tests"
 	@echo "  make eval         Run 100-query dual evaluation benchmark"
 	@echo "  make run          Start MCP server in stdio mode (Claude Desktop)"
 	@echo "  make run-sse      Start MCP server in SSE mode (HTTP port 8000)"

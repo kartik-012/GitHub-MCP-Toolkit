@@ -554,7 +554,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
   <div class="badges">
     <span class="badge green">✓ Standard Eval: 80/80 (100%)</span>
     <span class="badge green">✓ Adversarial Eval: 20/20 (100%)</span>
-    <span class="badge green">✓ Pytest: 130/130 Passed</span>
+    <span class="badge green">✓ Pytest: 140/140 Passed</span>
   </div>
 </header>
 

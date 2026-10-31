@@ -4,7 +4,7 @@
 [![MCP Spec Version](https://img.shields.io/badge/MCP-1.0.0-green.svg)](https://modelcontextprotocol.io/)
 [![ADRs: 12 Decisions](https://img.shields.io/badge/adrs-12%20decisions-purple.svg)](DECISIONS.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Tests: 130 passed](https://img.shields.io/badge/tests-130%20passed-brightgreen.svg)]()
+[![Tests: 140 passed](https://img.shields.io/badge/tests-140%20passed-brightgreen.svg)]()
 [![Standard Eval: 100%](https://img.shields.io/badge/standard%20eval-100%25-brightgreen.svg)]()
 [![Adversarial Eval: 100%](https://img.shields.io/badge/adversarial%20eval-100%25-brightgreen.svg)]()
 [![Docker: Ready](https://img.shields.io/badge/docker-ready-blue.svg)](Dockerfile)
@@ -33,7 +33,7 @@ A production-grade, fault-tolerant, and benchmarked **Enterprise Model Context P
 | **Adversarial Robustness Score** | Unmeasured (Fails on Injection) | **100.0% (20/20)** | **100% attack mitigation** |
 | **Blind / Tampered Write Mutation Rate** | 14.0% mis-execution | **0.0% (Eliminated)** | **100% risk elimination** |
 | **C-Extension Memory Footprint** | ~300MB (PyTorch/Transformers) | **0MB (Hybrid RRF + TF-IDF)** | **100% footprint reduction** |
-| **Unit, Concurrency & Chaos Test Suite** | 0 tests | **130 passed tests** | **100% subsystem verification** |
+| **Unit, Concurrency & Chaos Test Suite** | 0 tests | **140 passed tests** | **100% subsystem verification** |
 
 <p align="center">
   <img src="docs/images/impact_metrics.png" alt="Measured Engineering Impact Dashboard" width="70%">
