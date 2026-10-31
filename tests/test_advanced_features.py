@@ -2570,4 +2570,21 @@ class TestStaffAddition5ReproducibleProofScorecard:
         assert os.path.exists(proof_md)
 
 
+class TestWebConsoleDispatch:
+    """Verify clean interactive web console action dispatch and routing."""
+
+    def test_handle_api_action_route_and_ping(self):
+        from api.index import handle_api_action
+
+        routed = handle_api_action({"action": "route_query", "query": "show my repositories"})
+        assert routed["predicted_tool"] == "list_repositories"
+
+        pinged = handle_api_action({"action": "webhook_ping"})
+        assert pinged["result"]["status"] == "ping_acknowledged"
+
+        unknown = handle_api_action({"action": "invalid_test_action"})
+        assert "error" in unknown
+
+
+
 
