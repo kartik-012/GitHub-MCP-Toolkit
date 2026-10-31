@@ -290,3 +290,25 @@ def is_valid_payload(schema_cls: Type[BaseModel], data: Any) -> bool:
     except (ValidationError, Exception):
         return False
 
+
+def sanitize_payload_for_logging(data: Any, sensitive_keys: Optional[set] = None) -> Any:
+    """
+    Recursively sanitize dictionaries and lists for structured logging and telemetry,
+    redacting values whose keys contain sensitive substrings (token, secret, password, key).
+    """
+    if sensitive_keys is None:
+        sensitive_keys = {"token", "secret", "password", "key", "authorization", "auth_token"}
+
+    if isinstance(data, dict):
+        sanitized = {}
+        for k, v in data.items():
+            if any(s in str(k).lower() for s in sensitive_keys):
+                sanitized[k] = "[REDACTED]"
+            else:
+                sanitized[k] = sanitize_payload_for_logging(v, sensitive_keys)
+        return sanitized
+    if isinstance(data, list):
+        return [sanitize_payload_for_logging(item, sensitive_keys) for item in data]
+    return data
+
+
