@@ -2586,5 +2586,35 @@ class TestWebConsoleDispatch:
         assert "error" in unknown
 
 
+class TestAITriageAndIntentScoring:
+    """Verify AI triage helpers, SLA formatting, and intent metadata routing."""
+
+    def test_calculate_risk_level(self):
+        from tools.triage_issue import calculate_risk_level
+        assert calculate_risk_level(0.85) == "critical"
+        assert calculate_risk_level(0.50) == "high"
+        assert calculate_risk_level(0.25) == "medium"
+        assert calculate_risk_level(0.0) == "none"
+
+    def test_format_sla_target(self):
+        from tools.triage_issue import format_sla_target
+        assert "4 hours" in format_sla_target("critical")
+        assert "24 hours" in format_sla_target("high")
+        assert "72 hours" in format_sla_target("medium")
+        assert "7 days" in format_sla_target("low")
+
+    def test_classify_tool_intent_with_metadata(self):
+        from eval.run_eval import classify_tool_intent_with_metadata
+        res = classify_tool_intent_with_metadata("show my repositories")
+        assert res["tool"] == "list_repositories"
+        assert res["confidence"] >= 0.5
+        assert res["latency_ms"] >= 0.0
+
+        out_of_domain = classify_tool_intent_with_metadata("what is the weather in Paris?")
+        assert out_of_domain["tool"] is None
+        assert out_of_domain["confidence"] == 0.0
+
+
+
 
 
