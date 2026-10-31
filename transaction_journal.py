@@ -186,3 +186,23 @@ class TransactionJournal:
             journal = cls._load_journal()
             return [r for r in reversed(journal) if r.get("status") == "committed"]
 
+    @classmethod
+    def summarize_activity_by_tool(cls) -> Dict[str, Dict[str, int]]:
+        """
+        Aggregate transaction counts grouped by MCP tool name and execution status.
+        Useful for FinOps audit reporting and transaction breakdown metrics.
+        """
+        summary: Dict[str, Dict[str, int]] = {}
+        with _JOURNAL_LOCK:
+            journal = cls._load_journal()
+            for record in journal:
+                tool = str(record.get("tool", "unknown"))
+                status = str(record.get("status", "committed"))
+                if tool not in summary:
+                    summary[tool] = {"committed": 0, "reverted": 0}
+                if status in summary[tool]:
+                    summary[tool][status] += 1
+                else:
+                    summary[tool][status] = 1
+        return summary
+
