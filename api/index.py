@@ -608,7 +608,10 @@ INDEX_HTML = r"""<!DOCTYPE html>
       </div>
       <p>Structured JSON response from the MCP server:</p>
       <pre id="out-box">// Click any action on the left to inspect the guardrail response...</pre>
-      <h2 style="margin-top:16px;margin-bottom:8px;font-size:14px;">Repository Issues State</h2>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px;margin-bottom:8px;">
+        <h2 style="margin-bottom:0;font-size:14px;">Repository Issues State</h2>
+        <input type="text" id="issue-filter" placeholder="Filter issues..." style="width:160px;margin-bottom:0;padding:4px 8px;font-size:11.5px;" oninput="filterIssues()" />
+      </div>
       <table>
         <thead><tr><th>#</th><th>Repo</th><th>Title</th><th>Labels</th><th>State</th></tr></thead>
         <tbody id="issues-tb"></tbody>
@@ -667,11 +670,10 @@ async function runBulk(confirmed) {
   }
 }
 
-async function refreshState() {
-  const res = await fetch('/api/state');
-  const st = await res.json();
-  document.getElementById('freeze-btn').textContent = st.policy.allow_writes ? '🔒 Freeze Writes (Currently Allowed)' : '🔓 Unfreeze Writes (Currently FROZEN)';
-  document.getElementById('issues-tb').innerHTML = st.issues.map(i => `
+let cachedIssues = [];
+
+function renderIssues(list) {
+  document.getElementById('issues-tb').innerHTML = list.map(i => `
     <tr>
       <td class="mono">#${i.number}</td>
       <td>${i.repo}</td>
@@ -680,6 +682,26 @@ async function refreshState() {
       <td style="color:${i.state==='open'?'#34d399':'#f87171'}">${i.state}</td>
     </tr>
   `).join('');
+}
+
+function filterIssues() {
+  const term = (document.getElementById('issue-filter').value || '').toLowerCase().trim();
+  if (!term) { renderIssues(cachedIssues); return; }
+  const filtered = cachedIssues.filter(i =>
+    i.title.toLowerCase().includes(term) ||
+    i.repo.toLowerCase().includes(term) ||
+    i.state.toLowerCase().includes(term) ||
+    (i.labels||[]).some(l => l.toLowerCase().includes(term))
+  );
+  renderIssues(filtered);
+}
+
+async function refreshState() {
+  const res = await fetch('/api/state');
+  const st = await res.json();
+  cachedIssues = st.issues || [];
+  document.getElementById('freeze-btn').textContent = st.policy.allow_writes ? '🔒 Freeze Writes (Currently Allowed)' : '🔓 Unfreeze Writes (Currently FROZEN)';
+  filterIssues();
 }
 
 window.addEventListener('DOMContentLoaded', () => { routeNow(); refreshState(); });
