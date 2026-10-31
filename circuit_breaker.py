@@ -196,15 +196,24 @@ class CircuitBreaker:
             self._on_failure(exc)
             raise
 
+    def get_cooldown_remaining(self) -> float:
+        """Return the seconds remaining in the open cooldown period, or 0.0 if not open."""
+        with self._lock:
+            if self._state != CircuitState.OPEN or self._last_opened_at == 0.0:
+                return 0.0
+            return max(0.0, round(self.cooldown_seconds - (time.monotonic() - self._last_opened_at), 2))
+
     def status(self) -> Dict[str, Any]:
         """Return a dict snapshot of this breaker's current state — useful for diagnostics."""
         with self._lock:
             return {
                 "name": self.name,
                 "state": self.state.value,
+                "is_available": self.is_available,
                 "failure_count": self._failure_count,
                 "failure_threshold": self.failure_threshold,
                 "cooldown_seconds": self.cooldown_seconds,
+                "cooldown_remaining_seconds": self.get_cooldown_remaining(),
                 "last_opened_at": self._last_opened_at or None,
             }
 
