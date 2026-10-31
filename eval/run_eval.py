@@ -317,6 +317,41 @@ def classify_tool_intent(query: str) -> Optional[str]:
     return None
 
 
+def classify_tool_intent_with_metadata(query: str) -> Dict[str, Any]:
+    """
+    Route natural-language query and return tool match alongside execution metadata:
+    confidence estimation, evaluation latency in milliseconds, and resolution method.
+    """
+    start_ns = time.perf_counter_ns()
+    predicted = classify_tool_intent(query)
+    latency_ms = round((time.perf_counter_ns() - start_ns) / 1_000_000.0, 3)
+
+    if predicted is None:
+        return {
+            "tool": None,
+            "confidence": 0.0,
+            "latency_ms": latency_ms,
+            "method": "out_of_domain_or_unmatched",
+        }
+
+    # Estimate confidence: high for deterministic rules, vector score for fallback
+    q_clean = _extract_primary_clause(query) or ""
+    tool_docs = [
+        {"title": t["name"].replace("_", " "), "body": f"{t['doc']} {' '.join(t['keywords'])}", "tool_name": t["name"]}
+        for t in TOOLS_REGISTRY
+    ]
+    ranked = VectorEngine.rank_documents(q_clean, tool_docs, top_k=1)
+    vector_score = ranked[0]["similarity_score"] if (ranked and ranked[0]["tool_name"] == predicted) else 0.5
+
+    confidence = round(max(0.75, vector_score), 2)
+    return {
+        "tool": predicted,
+        "confidence": confidence,
+        "latency_ms": latency_ms,
+        "method": "hybrid_rule_and_vector",
+    }
+
+
 # ---------------------------------------------------------------------------
 # Real LLM Tool-Selection Classifier (--llm mode via local Ollama)
 # ---------------------------------------------------------------------------
