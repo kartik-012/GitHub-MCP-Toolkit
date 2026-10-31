@@ -217,9 +217,9 @@ def classify_tool_intent(query: str) -> Optional[str]:
             "triage", "priority should", "what priority", "analyze issue",
             "analyse issue", "what type of problem", "review issue",
             "what's going on with issue", "classify issue", "categorize issue",
-            "suggest labels",
+            "suggest labels", "assign priority", "sla remediation", "sla target", "sla timeline",
         ])
-        or any(w in words for w in ["triage", "priority", "severity", "classify", "categorize"])
+        or any(w in words for w in ["triage", "priority", "severity", "classify", "categorize", "urgency", "impact"])
     ):
         return "triage_issue"
 
