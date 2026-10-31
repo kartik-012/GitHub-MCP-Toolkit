@@ -189,6 +189,22 @@ def get_trace_by_id(trace_id: str) -> Optional[Dict[str, Any]]:
     return None
 
 
+def get_slow_traces(threshold_ms: float = 1000.0, limit: int = 10) -> List[Dict[str, Any]]:
+    """Return trace records whose total execution latency exceeded threshold_ms (newest first)."""
+    traces = read_recent_traces(limit=MAX_TRACE_RECORDS)
+    slow = [t for t in traces if float(t.get("total_ms", 0.0)) >= threshold_ms]
+    return slow[:limit]
+
+
+def calculate_error_rate(records: Optional[List[Dict[str, Any]]] = None) -> float:
+    """Calculate the error rate percentage (0.0 to 100.0) across recorded traces."""
+    data = read_recent_traces(limit=100) if records is None else records
+    if not data:
+        return 0.0
+    err_count = sum(1 for r in data if r.get("outcome") in {"error", "failure", "exception"})
+    return round((err_count / len(data)) * 100.0, 2)
+
+
 def get_telemetry_summary(records: Optional[List[Dict[str, Any]]] = None) -> Dict[str, Any]:
     """
     Compute live SLO & Guardrail Telemetry Diagnostics across trace records:
