@@ -105,6 +105,20 @@ class VectorEngine:
         return round(numerator / denominator, 4)
 
     @classmethod
+    def compute_cosine_distance(
+        cls,
+        text1: str,
+        text2: str,
+        idf_weights: Optional[Dict[str, float]] = None,
+    ) -> float:
+        """
+        Compute cosine distance (1.0 - cosine_similarity) between two texts.
+        Returns a value between 0.0 (identical) and 1.0 (completely orthogonal).
+        """
+        sim = cls.compute_cosine_similarity(text1, text2, idf_weights=idf_weights)
+        return round(max(0.0, 1.0 - sim), 4)
+
+    @classmethod
     def rank_documents(
         cls,
         query: str,
