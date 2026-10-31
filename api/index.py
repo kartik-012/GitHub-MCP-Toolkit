@@ -593,6 +593,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
         <div class="btn-row">
           <button class="sec" onclick="apiCall({action:'triage_issue'})">🛡️ Triage Malicious Issue #5</button>
           <button class="danger" onclick="apiCall({action:'dlp_test'})">🕵️ Test Outbound DLP / Luhn Block</button>
+          <button class="danger" onclick="apiCall({action:'dlp_test',body:'Leaked HuggingFace token: hf_0123456789abcdefghijklmnopqrstuvwx'})">🤗 Test HuggingFace DLP</button>
           <button class="sec" onclick="apiCall({action:'rbac_switch'})">🔑 Cycle RBAC Role</button>
           <button class="warn" onclick="apiCall({action:'undo_last'})">↩️ Undo Last Write (Saga Rollback)</button>
           <button class="danger" onclick="apiCall({action:'toggle_freeze'})" id="freeze-btn">🔒 Toggle Policy Write-Freeze</button>
