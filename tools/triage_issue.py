@@ -61,6 +61,20 @@ _INJECTION_SIGNATURES: List[Tuple[str, re.Pattern, float]] = [
 ]
 
 
+def calculate_risk_level(risk_score: float) -> str:
+    """
+    Map a numeric risk score (0.0 - 1.0) to standardized risk tiers:
+    'critical' (>= 0.75), 'high' (>= 0.45), 'medium' (> 0.0), or 'none' (0.0).
+    """
+    if risk_score >= 0.75:
+        return "critical"
+    if risk_score >= 0.45:
+        return "high"
+    if risk_score > 0.0:
+        return "medium"
+    return "none"
+
+
 def detect_prompt_injection_signals(title: str, body: str) -> Dict[str, Any]:
     """
     Scan untrusted GitHub issue text for indirect prompt-injection attacks.
@@ -77,14 +91,7 @@ def detect_prompt_injection_signals(title: str, body: str) -> Dict[str, Any]:
             score += weight
 
     risk_score = min(1.0, round(score, 2))
-    if risk_score >= 0.75:
-        risk_level = "critical"
-    elif risk_score >= 0.45:
-        risk_level = "high"
-    elif risk_score > 0.0:
-        risk_level = "medium"
-    else:
-        risk_level = "none"
+    risk_level = calculate_risk_level(risk_score)
 
     return {
         "injection_detected": len(matched_signals) > 0,
