@@ -194,6 +194,15 @@ class PolicyEngine:
         return True, "Allowed"
 
     @classmethod
+    def is_label_restricted(cls, label: str, policy: Optional[Dict[str, Any]] = None) -> bool:
+        """Return True if label is in the restricted system labels policy list."""
+        if not label:
+            return False
+        pol = policy or cls.load_policy()
+        restricted = [str(l).strip().lower() for l in pol.get("restricted_labels", [])]
+        return label.strip().lower() in restricted
+
+    @classmethod
     def evaluate(
         cls,
         tool_name: str,
@@ -240,7 +249,7 @@ class PolicyEngine:
 
         # 4. Check Restricted Label Policy
         label = args.get("label")
-        if label and label.lower() in [l.lower() for l in policy.get("restricted_labels", [])]:
+        if label and cls.is_label_restricted(label, policy):
             return False, f"Policy Denial: Label '{label}' is classified as a restricted system label."
 
         # 5. Check Bulk Action Limit Policy
