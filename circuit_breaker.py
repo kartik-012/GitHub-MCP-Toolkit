@@ -165,6 +165,12 @@ class CircuitBreaker:
         """Return True if the circuit breaker can accept calls (CLOSED or HALF_OPEN)."""
         return self.state != CircuitState.OPEN
 
+    @property
+    def is_closed(self) -> bool:
+        """Return True if the circuit breaker is in normal CLOSED state."""
+        return self.state == CircuitState.CLOSED
+
+
     def call(self, func: Callable[[], Any]) -> Any:
         """
         Execute `func` if the circuit is CLOSED or HALF_OPEN (single probe).
