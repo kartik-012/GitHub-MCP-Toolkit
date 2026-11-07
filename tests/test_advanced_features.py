@@ -2669,6 +2669,32 @@ class TestCoreEngineEnhancements:
         assert summary["create_issue"]["committed"] == 2
 
 
+class TestUtilityAdditions:
+    """Verify is_closed, is_label_restricted, get_total_trace_count, and get_vocabulary_size."""
+
+    def test_is_closed(self):
+        from circuit_breaker import CircuitBreaker
+        cb = CircuitBreaker("cb_test", failure_threshold=1)
+        assert cb.is_closed is True
+
+    def test_is_label_restricted(self):
+        from policy_engine import PolicyEngine
+        assert PolicyEngine.is_label_restricted("security-critical") is True
+        assert PolicyEngine.is_label_restricted("bug") is False
+        assert PolicyEngine.is_label_restricted("") is False
+
+    def test_get_total_trace_count(self):
+        from tracer import get_total_trace_count
+        assert isinstance(get_total_trace_count(), int)
+        assert get_total_trace_count() >= 0
+
+    def test_get_vocabulary_size(self):
+        from vector_engine import VectorEngine
+        vocab_size = VectorEngine.get_vocabulary_size("login crash login bug")
+        assert vocab_size == 3
+
+
+
 
 
 
