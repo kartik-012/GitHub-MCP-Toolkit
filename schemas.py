@@ -17,7 +17,11 @@ from pydantic import BaseModel, ConfigDict, ValidationError
 
 
 class _AllowExtraModel(BaseModel):
-    model_config = ConfigDict(extra="allow")
+    """
+    Base Pydantic model for MCP response schemas. Configures extra='allow'
+    for forward-compatible serialization without dropping unexpected upstream fields.
+    """
+    model_config = ConfigDict(extra="allow", populate_by_name=True)
 
 
 # ---------------------------------------------------------------------------
