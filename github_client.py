@@ -81,6 +81,15 @@ class GitHubClient:
             self._user_cache = self._call_with_retry(lambda: self.gh.get_user())
         return self._user_cache
 
+    def get_user_login(self) -> str:
+        """Return the authenticated GitHub username or configured fallback username."""
+        try:
+            user = self._get_authenticated_user()
+            return getattr(user, "login", "") or os.getenv("GITHUB_USERNAME", "")
+        except Exception:
+            return os.getenv("GITHUB_USERNAME", "")
+
+
     def _call_with_retry(self, func, max_retries: int = 3, backoff_factor: float = 1.5):
         """
         Execute a PyGithub API function with:
