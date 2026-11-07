@@ -44,6 +44,11 @@ class VectorEngine:
         ]
 
     @classmethod
+    def get_vocabulary_size(cls, text: str) -> int:
+        """Return the count of unique stemmed tokens in text after stopword filtering."""
+        return len(set(cls._tokenize(text)))
+
+    @classmethod
     def compute_idf(cls, tokenized_docs: List[List[str]]) -> Dict[str, float]:
         """
         Compute smoothed Inverse Document Frequency across a document corpus:
