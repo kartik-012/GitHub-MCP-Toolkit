@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+*$py.class
+*.log
+traces.jsonl
+tool_calls.log
+transactions.json.tmp*
+.env
+venv/
+.pytest_cache/
+.coverage
+htmlcov/
+.git/
+.github/
+.vscode/
+.idea/
