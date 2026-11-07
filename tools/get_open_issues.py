@@ -14,7 +14,8 @@ def register(mcp, gh):
         Use search_issues for keyword/filtered searches instead.
         """
         try:
-            return gh.list_open_issues(repo_name if repo_name else None)
+            target_repo = repo_name.strip() if repo_name and repo_name.strip() else None
+            return gh.list_open_issues(target_repo)
         except Exception as e:
             return {
                 "status": "error",
