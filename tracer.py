@@ -171,6 +171,19 @@ def read_recent_traces(limit: int = 10) -> List[Dict[str, Any]]:
         return []
 
 
+def get_total_trace_count() -> int:
+    """Return the total count of recorded trace entries in traces.jsonl."""
+    if not os.path.exists(TRACES_FILE):
+        return 0
+    try:
+        with _TRACE_FILE_LOCK:
+            with open(TRACES_FILE, "r", encoding="utf-8") as f:
+                return sum(1 for line in f if line.strip())
+    except Exception:
+        return 0
+
+
+
 def get_trace_by_id(trace_id: str) -> Optional[Dict[str, Any]]:
     """Lookup a single trace record by trace_id or w3c_trace_id (newest match first)."""
     target = (trace_id or "").strip()
