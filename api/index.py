@@ -747,6 +747,14 @@ window.addEventListener('DOMContentLoaded', () => {
 
 
 class handler(BaseHTTPRequestHandler):
+    """
+    HTTP Request Handler for Vercel Serverless Functions and local standalone dev server.
+    Serves the interactive web console UI and REST endpoints:
+      - GET  /             -> Web Console HTML interface
+      - GET  /api/state    -> Sandbox repository issues and policy configuration
+      - POST /api/execute  -> Dispatch tool actions and smart query routing
+    """
+
     def log_message(self, format, *args):
         pass
 
