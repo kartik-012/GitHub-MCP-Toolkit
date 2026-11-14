@@ -49,6 +49,13 @@ class VectorEngine:
         return len(set(cls._tokenize(text)))
 
     @classmethod
+    def is_stopword(cls, word: str) -> bool:
+        """Return True if word (case-insensitive, trimmed) is in the internal stopword list."""
+        if not word:
+            return False
+        return word.strip().lower() in cls.STOPWORDS
+
+    @classmethod
     def compute_idf(cls, tokenized_docs: List[List[str]]) -> Dict[str, float]:
         """
         Compute smoothed Inverse Document Frequency across a document corpus:
