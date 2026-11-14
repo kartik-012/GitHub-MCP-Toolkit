@@ -156,6 +156,12 @@ def clear_active_trace() -> None:
     _ACTIVE_TRACE.set(None)
 
 
+def get_active_trace_id() -> Optional[str]:
+    """Return the trace_id of the currently active context-local trace, or None if no trace is active."""
+    active = _ACTIVE_TRACE.get()
+    return active.trace_id if active is not None else None
+
+
 def read_recent_traces(limit: int = 10) -> List[Dict[str, Any]]:
     """Return the most recent `limit` traces from traces.jsonl (newest first)."""
     if not os.path.exists(TRACES_FILE):
