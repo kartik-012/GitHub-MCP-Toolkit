@@ -203,6 +203,12 @@ class PolicyEngine:
         return label.strip().lower() in restricted
 
     @classmethod
+    def get_max_bulk_limit(cls, policy: Optional[Dict[str, Any]] = None) -> int:
+        """Return the maximum allowed operations for a single bulk mutation (defaults to 15)."""
+        pol = policy if policy is not None else cls.load_policy()
+        return int(pol.get("max_bulk_limit", 15))
+
+    @classmethod
     def evaluate(
         cls,
         tool_name: str,
