@@ -209,6 +209,13 @@ class CircuitBreaker:
                 return 0.0
             return max(0.0, round(self.cooldown_seconds - (time.monotonic() - self._last_opened_at), 2))
 
+    def get_failure_ratio(self) -> float:
+        """Return the ratio of current failures to failure threshold (0.0 to 1.0)."""
+        with self._lock:
+            if self.failure_threshold <= 0:
+                return 0.0
+            return min(1.0, round(self._failure_count / float(self.failure_threshold), 2))
+
     def status(self) -> Dict[str, Any]:
         """Return a dict snapshot of this breaker's current state — useful for diagnostics."""
         with self._lock:
@@ -218,6 +225,7 @@ class CircuitBreaker:
                 "is_available": self.is_available,
                 "failure_count": self._failure_count,
                 "failure_threshold": self.failure_threshold,
+                "failure_ratio": self.get_failure_ratio(),
                 "cooldown_seconds": self.cooldown_seconds,
                 "cooldown_remaining_seconds": self.get_cooldown_remaining(),
                 "last_opened_at": self._last_opened_at or None,
