@@ -2144,6 +2144,7 @@ class TestNextHorizon5ComplianceSnapshotExporter:
         import server
 
         monkeypatch.setattr("transaction_journal.JOURNAL_FILE", str(tmp_path / "soc2_tx.json"))
+        monkeypatch.setattr("tracer.TRACES_FILE", str(tmp_path / "soc2_traces.jsonl"))
         TransactionJournal.record_transaction(
             tool="add_label",
             repo_name="demo-repo",
@@ -2196,6 +2197,7 @@ class TestPart2LastMileHardening:
         from eval.run_eval import verify_live_server_parity
 
         monkeypatch.setattr("transaction_journal.JOURNAL_FILE", str(tmp_path / "web_soc2_tx.json"))
+        monkeypatch.setattr("tracer.TRACES_FILE", str(tmp_path / "web_traces.jsonl"))
         SANDBOX["policy"]["active_role"] = "admin"
 
         # 1. Outbound DLP test in web console
@@ -2692,6 +2694,63 @@ class TestUtilityAdditions:
         from vector_engine import VectorEngine
         vocab_size = VectorEngine.get_vocabulary_size("login crash login bug")
         assert vocab_size == 3
+
+
+class TestOperationalHelpersSuite:
+    """Verify newly introduced operational helpers and introspection utilities."""
+
+    def test_github_client_has_cached_user(self):
+        from github_client import GitHubClient
+        from unittest.mock import MagicMock
+        client = GitHubClient(token="ghp_test12345678901234567890")
+        assert client.has_cached_user is False
+        client._user_cache = MagicMock()
+        assert client.has_cached_user is True
+
+    def test_circuit_breaker_failure_ratio(self):
+        from circuit_breaker import CircuitBreaker
+        cb = CircuitBreaker("ratio_test", failure_threshold=5)
+        assert cb.get_failure_ratio() == 0.0
+        cb._failure_count = 2
+        assert cb.get_failure_ratio() == 0.4
+        status = cb.status()
+        assert status["failure_ratio"] == 0.4
+
+    def test_tracer_get_active_trace_id(self):
+        from tracer import get_or_create_trace, clear_active_trace, get_active_trace_id
+        clear_active_trace()
+        assert get_active_trace_id() is None
+        trace, _ = get_or_create_trace("test_tool")
+        assert get_active_trace_id() == trace.trace_id
+        clear_active_trace()
+        assert get_active_trace_id() is None
+
+    def test_policy_engine_max_bulk_limit(self):
+        from policy_engine import PolicyEngine
+        assert PolicyEngine.get_max_bulk_limit() == 15
+        assert PolicyEngine.get_max_bulk_limit({"max_bulk_limit": 25}) == 25
+
+    def test_vector_engine_is_stopword(self):
+        from vector_engine import VectorEngine
+        assert VectorEngine.is_stopword("the") is True
+        assert VectorEngine.is_stopword("AND") is True
+        assert VectorEngine.is_stopword("kubernetes") is False
+        assert VectorEngine.is_stopword("") is False
+
+    def test_schemas_get_registered_tool_names(self):
+        from schemas import get_registered_tool_names
+        names = get_registered_tool_names()
+        assert isinstance(names, list)
+        assert "create_issue" in names
+        assert "close_issue" in names
+        assert names == sorted(names)
+
+    def test_webhook_is_supported_event(self):
+        from webhook_handler import GitHubWebhookProcessor
+        assert GitHubWebhookProcessor.is_supported_event("issues") is True
+        assert GitHubWebhookProcessor.is_supported_event("PING") is True
+        assert GitHubWebhookProcessor.is_supported_event("push") is False
+        assert GitHubWebhookProcessor.is_supported_event("") is False
 
 
 
