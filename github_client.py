@@ -89,6 +89,12 @@ class GitHubClient:
         except Exception:
             return os.getenv("GITHUB_USERNAME", "")
 
+    @property
+    def has_cached_user(self) -> bool:
+        """Return True if authenticated user profile is already cached in memory."""
+        return self._user_cache is not None
+
+
 
     def _call_with_retry(self, func, max_retries: int = 3, backoff_factor: float = 1.5):
         """
