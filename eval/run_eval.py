@@ -113,6 +113,11 @@ TOOLS_REGISTRY = [
 ]
 
 
+def get_registered_eval_tool_names() -> List[str]:
+    """Return a sorted list of all tool names registered in the evaluation harness registry."""
+    return sorted([t["name"] for t in TOOLS_REGISTRY])
+
+
 # ---------------------------------------------------------------------------
 # Smart Tool Intent Classifier
 # ---------------------------------------------------------------------------
