@@ -39,8 +39,16 @@ class GitHubWebhookProcessor:
 
     DELIVERY_TTL_SECONDS = 600  # 10-minute replay window
     MAX_DELIVERY_CACHE = 1000
+    SUPPORTED_EVENTS = {"issues", "ping"}
     _DELIVERY_LOCK = threading.RLock()
     _seen_deliveries: Dict[str, float] = {}
+
+    @classmethod
+    def is_supported_event(cls, event_type: str) -> bool:
+        """Return True if the webhook event type is recognized and supported by the processor."""
+        if not event_type:
+            return False
+        return event_type.strip().lower() in cls.SUPPORTED_EVENTS
 
     @classmethod
     def reset_delivery_cache(cls) -> None:
