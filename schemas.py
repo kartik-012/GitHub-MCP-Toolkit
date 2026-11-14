@@ -295,6 +295,11 @@ def is_valid_payload(schema_cls: Type[BaseModel], data: Any) -> bool:
         return False
 
 
+def get_registered_tool_names() -> List[str]:
+    """Return a sorted list of tool names that have schemas registered in TOOL_SCHEMA_MAP."""
+    return sorted(list(TOOL_SCHEMA_MAP.keys()))
+
+
 def sanitize_payload_for_logging(data: Any, sensitive_keys: Optional[set] = None) -> Any:
     """
     Recursively sanitize dictionaries and lists for structured logging and telemetry,
