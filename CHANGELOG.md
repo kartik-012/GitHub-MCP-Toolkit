@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [3.4.0] - 2026-11-14
+
+### Added
+- **Client Cache Introspection (`github_client.py`)**: Added `has_cached_user` property for non-blocking inspection of cached authenticated user credentials.
+- **Circuit Breaker Diagnostics (`circuit_breaker.py`)**: Added `get_failure_ratio()` helper and enriched breaker `status()` snapshot payload with live failure ratio tracking.
+- **Trace Context Propagation (`tracer.py`)**: Added `get_active_trace_id()` helper for thread/context-local trace lookup across nested tool calls.
+- **Policy Engine Blast-Radius Helpers (`policy_engine.py`)**: Added `get_max_bulk_limit()` helper method for dynamic bulk blast-radius quota extraction.
+- **Vector Engine Lexical Utilities (`vector_engine.py`)**: Added `is_stopword()` helper for case-insensitive stopword verification.
+- **Schema Introspection (`schemas.py`)**: Added `get_registered_tool_names()` helper listing all registered schema contracts.
+- **Webhook Event Validation (`webhook_handler.py`)**: Added `is_supported_event()` validator and `SUPPORTED_EVENTS` registry.
+- **Evaluation Intent Router Tool Registry (`eval/run_eval.py`)**: Added `get_registered_eval_tool_names()` utility.
+- **Hermetic Test Isolation & Suite Expansion (`tests/test_advanced_features.py`)**: Added `TestOperationalHelpersSuite` verifying all new subsystem helpers, expanded test suite to 151 passed tests, and hardened test isolation via monkeypatched telemetric trace logs.
+
+---
+
 ## [3.2.0] - 2026-10-31
 
 ### Added
