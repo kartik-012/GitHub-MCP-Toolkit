@@ -23,7 +23,8 @@ def register(mcp, gh):
         IMPORTANT: Closing an issue alters state.
         Only call with confirmed=True AFTER user approval.
         """
-        if not repo_name or issue_number <= 0:
+        repo_clean = (repo_name or "").strip()
+        if not repo_clean or issue_number <= 0:
             return {
                 "status": "error",
                 "type": "invalid_argument",
@@ -33,13 +34,13 @@ def register(mcp, gh):
         # ── ABAC & DLP Policy Check ────────────────────────────────────────
         allowed, reason = PolicyEngine.evaluate(
             "close_issue",
-            {"repo_name": repo_name, "issue_number": issue_number, "comment": comment},
+            {"repo_name": repo_clean, "issue_number": issue_number, "comment": comment},
             rate_limit_remaining=PolicyEngine.get_client_rate_remaining(gh),
         )
         if not allowed:
             return {"status": "policy_denied", "reason": reason}
 
-        fingerprint = {"repo_name": repo_name.strip(), "issue_number": issue_number}
+        fingerprint = {"repo_name": repo_clean, "issue_number": issue_number}
 
         if not confirmed:
             token = PolicyEngine.issue_write_preview_token("close_issue", fingerprint)
@@ -53,11 +54,11 @@ def register(mcp, gh):
                 "action": "close_issue",
                 "preview_token": token,
                 "blast_radius": blast,
-                "repo_name": repo_name,
+                "repo_name": repo_clean,
                 "issue_number": issue_number,
                 "comment": comment,
                 "message": (
-                    f"Confirmation Required: Close issue #{issue_number} in '{repo_name}'? "
+                    f"Confirmation Required: Close issue #{issue_number} in '{repo_clean}'? "
                     f"Please confirm with confirmed=True and preview_token='{token}'."
                 ),
             }
@@ -67,13 +68,13 @@ def register(mcp, gh):
             return {"status": "error", "type": "invalid_preview_token", "message": tok_reason}
 
         try:
-            result = gh.close_issue(repo_name.strip(), issue_number, comment.strip() if comment else None)
+            result = gh.close_issue(repo_clean, issue_number, comment.strip() if comment else None)
 
             # ── Saga Journal Entry ─────────────────────────────────────────
             if result.get("status") == "closed":
                 tx_id = TransactionJournal.record_transaction(
                     tool="close_issue",
-                    repo_name=repo_name.strip(),
+                    repo_name=repo_clean,
                     parameters={"issue_number": issue_number, "comment": comment},
                     compensation={"type": "reopen_issue", "issue_number": issue_number},
                 )
