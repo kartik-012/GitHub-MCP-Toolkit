@@ -162,6 +162,12 @@ def get_active_trace_id() -> Optional[str]:
     return active.trace_id if active is not None else None
 
 
+def get_active_span_count() -> int:
+    """Return the number of recorded child spans in the active context trace, or 0 if none active."""
+    active = _ACTIVE_TRACE.get()
+    return len(active._spans) if active is not None else 0
+
+
 def read_recent_traces(limit: int = 10) -> List[Dict[str, Any]]:
     """Return the most recent `limit` traces from traces.jsonl (newest first)."""
     if not os.path.exists(TRACES_FILE):
