@@ -94,6 +94,15 @@ class GitHubClient:
         """Return True if authenticated user profile is already cached in memory."""
         return self._user_cache is not None
 
+    def get_token_redacted(self) -> str:
+        """Return a masked representation of the configured GitHub token for safe logging."""
+        if not self.token:
+            return ""
+        tok = str(self.token)
+        if len(tok) <= 8:
+            return "*" * len(tok)
+        return tok[:4] + ("*" * (len(tok) - 8)) + tok[-4:]
+
 
 
     def _call_with_retry(self, func, max_retries: int = 3, backoff_factor: float = 1.5):
