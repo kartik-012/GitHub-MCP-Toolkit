@@ -209,6 +209,12 @@ class PolicyEngine:
         return int(pol.get("max_bulk_limit", 15))
 
     @classmethod
+    def is_write_allowed(cls, policy: Optional[Dict[str, Any]] = None) -> bool:
+        """Return True if write operations are permitted under the current policy (allow_writes != False)."""
+        pol = policy if policy is not None else cls.load_policy()
+        return bool(pol.get("allow_writes", True))
+
+    @classmethod
     def evaluate(
         cls,
         tool_name: str,
