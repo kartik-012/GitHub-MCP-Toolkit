@@ -170,6 +170,16 @@ class CircuitBreaker:
         """Return True if the circuit breaker is in normal CLOSED state."""
         return self.state == CircuitState.CLOSED
 
+    @property
+    def is_open(self) -> bool:
+        """Return True if the circuit breaker is in tripped OPEN state."""
+        return self.state == CircuitState.OPEN
+
+    @property
+    def is_half_open(self) -> bool:
+        """Return True if the circuit breaker is in probationary HALF_OPEN state."""
+        return self.state == CircuitState.HALF_OPEN
+
 
     def call(self, func: Callable[[], Any]) -> Any:
         """
