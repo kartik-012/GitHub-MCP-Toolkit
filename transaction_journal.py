@@ -187,6 +187,11 @@ class TransactionJournal:
             return [r for r in reversed(journal) if r.get("status") == "committed"]
 
     @classmethod
+    def has_uncompensated_transactions(cls) -> bool:
+        """Return True if there is at least one active committed transaction eligible for rollback."""
+        return cls.get_last_committed_transaction() is not None
+
+    @classmethod
     def summarize_activity_by_tool(cls) -> Dict[str, Dict[str, int]]:
         """
         Aggregate transaction counts grouped by MCP tool name and execution status.
