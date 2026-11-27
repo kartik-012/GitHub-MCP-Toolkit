@@ -26,7 +26,9 @@ def register(mcp, gh):
         
         If confirmed is False, return a confirmation request message first.
         """
-        if not repo_name or not label or issue_number <= 0:
+        repo_clean = (repo_name or "").strip()
+        label_clean = (label or "").strip()
+        if not repo_clean or not label_clean or issue_number <= 0:
             return {
                 "status": "error",
                 "type": "invalid_argument",
@@ -36,13 +38,13 @@ def register(mcp, gh):
         # ── ABAC Policy Check ──────────────────────────────────────────────
         allowed, reason = PolicyEngine.evaluate(
             "add_label",
-            {"repo_name": repo_name, "label": label},
+            {"repo_name": repo_clean, "label": label_clean},
             rate_limit_remaining=PolicyEngine.get_client_rate_remaining(gh),
         )
         if not allowed:
             return {"status": "policy_denied", "reason": reason}
 
-        fingerprint = {"repo_name": repo_name.strip(), "issue_number": issue_number, "label": label.strip()}
+        fingerprint = {"repo_name": repo_clean, "issue_number": issue_number, "label": label_clean}
 
         if not confirmed:
             token = PolicyEngine.issue_write_preview_token("add_label", fingerprint)
@@ -56,11 +58,11 @@ def register(mcp, gh):
                 "action": "add_label",
                 "preview_token": token,
                 "blast_radius": blast,
-                "repo_name": repo_name,
+                "repo_name": repo_clean,
                 "issue_number": issue_number,
-                "label": label,
+                "label": label_clean,
                 "message": (
-                    f"Confirmation Required: Add label '{label}' to issue #{issue_number} in '{repo_name}'? "
+                    f"Confirmation Required: Add label '{label_clean}' to issue #{issue_number} in '{repo_clean}'? "
                     f"Please confirm with confirmed=True and preview_token='{token}'."
                 ),
             }
@@ -70,15 +72,15 @@ def register(mcp, gh):
             return {"status": "error", "type": "invalid_preview_token", "message": tok_reason}
 
         try:
-            result = gh.add_label(repo_name.strip(), issue_number, label.strip())
+            result = gh.add_label(repo_clean, issue_number, label_clean)
 
             # ── Saga Journal Entry ─────────────────────────────────────────
             if result.get("status") == "success":
                 tx_id = TransactionJournal.record_transaction(
                     tool="add_label",
-                    repo_name=repo_name.strip(),
-                    parameters={"issue_number": issue_number, "label": label.strip()},
-                    compensation={"type": "remove_label", "issue_number": issue_number, "label": label.strip()},
+                    repo_name=repo_clean,
+                    parameters={"issue_number": issue_number, "label": label_clean},
+                    compensation={"type": "remove_label", "issue_number": issue_number, "label": label_clean},
                 )
                 result["transaction_id"] = tx_id
 
