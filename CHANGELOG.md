@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [3.5.0] - 2026-11-27
+
+### Added
+- **Credential Masking (`github_client.py`)**: Added `get_token_redacted()` method to safely redact GitHub personal access tokens in diagnostic logs.
+- **Circuit Breaker State Properties (`circuit_breaker.py`)**: Added `is_open` and `is_half_open` boolean properties for direct state probing.
+- **Tracer Diagnostics (`tracer.py`)**: Added `get_active_span_count()` helper for context-local span introspection.
+- **Policy Engine Write Permissions (`policy_engine.py`)**: Added `is_write_allowed()` helper to query global write freeze policy.
+- **Lexical Set Similarity (`vector_engine.py`)**: Added `compute_jaccard_similarity()` for token set overlap analysis.
+- **Transaction Journal Verification (`transaction_journal.py`)**: Added `has_uncompensated_transactions()` helper for rapid compensation eligibility checks.
+- **Input Sanitization (`tools/add_label.py`)**: Normalized and stripped repository and label input parameters.
+- **Schema Mapping Introspection (`schemas.py`)**: Added `get_schema_for_tool()` helper to dynamically retrieve Pydantic schemas by tool name.
+- **Webhook Delivery Telemetry (`webhook_handler.py`)**: Added `get_seen_delivery_count()` diagnostic helper.
+- **Test Suite Expansion (`tests/test_advanced_features.py`)**: Expanded unit test coverage with dedicated test cases, growing suite to 158 passed tests.
+
+---
+
 ## [3.4.0] - 2026-11-14
 
 ### Added
