@@ -56,6 +56,12 @@ class GitHubWebhookProcessor:
         with cls._DELIVERY_LOCK:
             cls._seen_deliveries.clear()
 
+    @classmethod
+    def get_seen_delivery_count(cls) -> int:
+        """Return the count of active delivery nonces currently stored in memory."""
+        with cls._DELIVERY_LOCK:
+            return len(cls._seen_deliveries)
+
     @staticmethod
     def compute_signature(secret: str, raw_body: bytes) -> str:
         """Compute GitHub-format `sha256=<hex>` HMAC signature."""
