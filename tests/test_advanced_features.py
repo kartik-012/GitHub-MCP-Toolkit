@@ -2752,6 +2752,73 @@ class TestOperationalHelpersSuite:
         assert GitHubWebhookProcessor.is_supported_event("push") is False
         assert GitHubWebhookProcessor.is_supported_event("") is False
 
+    def test_github_client_get_token_redacted(self):
+        from github_client import GitHubClient
+        client = GitHubClient(token="ghp_1234567890abcdef1234")
+        redacted = client.get_token_redacted()
+        assert redacted.startswith("ghp_")
+        assert redacted.endswith("1234")
+        assert "*" in redacted
+        empty_client = GitHubClient(token="")
+        empty_client.token = ""
+        assert empty_client.get_token_redacted() == ""
+
+    def test_circuit_breaker_open_and_half_open_properties(self):
+        import time
+        from circuit_breaker import CircuitBreaker, CircuitState
+        cb = CircuitBreaker("state_prop_test", cooldown_seconds=60.0)
+        assert cb.is_open is False
+        assert cb.is_half_open is False
+        cb._state = CircuitState.OPEN
+        cb._last_opened_at = time.monotonic()
+        assert cb.is_open is True
+        assert cb.is_half_open is False
+        cb._state = CircuitState.HALF_OPEN
+        assert cb.is_open is False
+        assert cb.is_half_open is True
+
+    def test_tracer_get_active_span_count(self):
+        from tracer import get_or_create_trace, clear_active_trace, get_active_span_count
+        clear_active_trace()
+        assert get_active_span_count() == 0
+        tr, _ = get_or_create_trace("test_span_count_tool")
+        assert get_active_span_count() == 0
+        with tr.span("phase1"):
+            pass
+        assert get_active_span_count() == 1
+        clear_active_trace()
+        assert get_active_span_count() == 0
+
+    def test_policy_engine_is_write_allowed(self):
+        from policy_engine import PolicyEngine
+        assert PolicyEngine.is_write_allowed() is True
+        assert PolicyEngine.is_write_allowed({"allow_writes": False}) is False
+        assert PolicyEngine.is_write_allowed({"allow_writes": True}) is True
+
+    def test_vector_engine_compute_jaccard_similarity(self):
+        from vector_engine import VectorEngine
+        assert VectorEngine.compute_jaccard_similarity("alpha beta gamma", "alpha beta gamma") == 1.0
+        assert VectorEngine.compute_jaccard_similarity("alpha beta", "gamma delta") == 0.0
+        sim = VectorEngine.compute_jaccard_similarity("login crash bug", "login crash error")
+        assert 0.0 < sim < 1.0
+
+    def test_transaction_journal_has_uncompensated(self, tmp_path, monkeypatch):
+        from transaction_journal import TransactionJournal
+        monkeypatch.setattr("transaction_journal.JOURNAL_FILE", str(tmp_path / "journal_empty.json"))
+        assert TransactionJournal.has_uncompensated_transactions() is False
+        TransactionJournal.record_transaction(
+            tool="add_label",
+            repo_name="demo-repo",
+            parameters={"issue_number": 1, "label": "bug"},
+            compensation={"type": "remove_label", "issue_number": 1, "label": "bug"},
+        )
+        assert TransactionJournal.has_uncompensated_transactions() is True
+
+    def test_schemas_get_schema_for_tool(self):
+        from schemas import get_schema_for_tool, CreateIssueResponse
+        assert get_schema_for_tool("create_issue") is CreateIssueResponse
+        assert get_schema_for_tool("nonexistent_tool_xyz") is None
+
 
 
 
