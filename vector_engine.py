@@ -131,6 +131,22 @@ class VectorEngine:
         return round(max(0.0, 1.0 - sim), 4)
 
     @classmethod
+    def compute_jaccard_similarity(cls, text1: str, text2: str) -> float:
+        """
+        Compute Jaccard token set similarity (|A ∩ B| / |A ∪ B|) between two texts.
+        Returns a value between 0.0 (disjoint) and 1.0 (identical token sets).
+        """
+        tokens1 = set(cls._tokenize(text1))
+        tokens2 = set(cls._tokenize(text2))
+        if not tokens1 and not tokens2:
+            return 1.0
+        if not tokens1 or not tokens2:
+            return 0.0
+        intersection = len(tokens1 & tokens2)
+        union = len(tokens1 | tokens2)
+        return round(intersection / union, 4)
+
+    @classmethod
     def rank_documents(
         cls,
         query: str,
